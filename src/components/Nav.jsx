@@ -1,17 +1,17 @@
-import { Link } from "react-router-dom"
+import { Link, NavLink } from "react-router-dom"
 
 export default function Nav() {
   return (
     <nav className="flex items-center justify-between flex-wrap bg-purple-500 p-6">
       <ul className="flex items-center flex-shrink-0 text-white mr-6">
         <li>
-          <Link to="/">Strona główna</Link>
+          <NavLink to="/">Strona główna</NavLink>
         </li>
         <li>
-          <Link to="/login">Logowanie</Link>
+          <NavLink to="/login">Logowanie</NavLink>
         </li>
         <li>
-          <Link to="/signup">Rejestracja</Link>
+          <NavLink to="/signup">Rejestracja</NavLink>
         </li>
       </ul>
     </nav>

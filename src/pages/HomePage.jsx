@@ -1,3 +1,4 @@
+import Footer from "../components/Footer"
 import Nav from "../components/Nav"
 
 export default function HomePage() {
@@ -5,6 +6,7 @@ export default function HomePage() {
     <>
       <Nav />
       <h1>Strona główna</h1>
+      <Footer />
     </>
   )
 }

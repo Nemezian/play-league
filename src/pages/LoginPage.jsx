@@ -1,10 +1,10 @@
-import Header from "../components/Header"
+import FormHeader from "../components/FormHeader"
 import Login from "../components/Login"
 
 export default function LoginPage() {
   return (
     <>
-      <Header
+      <FormHeader
         heading="Zaloguj się"
         paragraph="Nie masz jeszcze konta? Zarejestruj się tutaj:"
         linkName="Rejestracja"
