@@ -1,19 +1,31 @@
-import { Link, NavLink } from "react-router-dom"
+import { NavLink } from "react-router-dom"
+
+const NavLinks = () => {
+  return (
+    <>
+      <NavLink to="/" className="mx-2">
+        Strona główna
+      </NavLink>
+
+      <NavLink to="/login" className="mx-2">
+        Logowanie
+      </NavLink>
+
+      <NavLink to="/signup" className="mx-2">
+        Rejestracja
+      </NavLink>
+    </>
+  )
+}
 
 export default function Nav() {
   return (
-    <nav className="flex items-center justify-between flex-wrap bg-purple-500 p-6">
-      <ul className="flex items-center flex-shrink-0 text-white mr-6">
-        <li>
-          <NavLink to="/">Strona główna</NavLink>
-        </li>
-        <li>
-          <NavLink to="/login">Logowanie</NavLink>
-        </li>
-        <li>
-          <NavLink to="/signup">Rejestracja</NavLink>
-        </li>
-      </ul>
-    </nav>
+    <>
+      <nav className="flex flex-[1] items-center justify-end overflow-hidden">
+        <div className="hidden justify-end md:flex">
+          <NavLinks />
+        </div>
+      </nav>
+    </>
   )
 }

@@ -1,10 +1,11 @@
 import Footer from "../components/Footer"
+import Header from "../components/Header"
 import Nav from "../components/Nav"
 
 export default function HomePage() {
   return (
     <>
-      <Nav />
+      <Header />
       <h1>Strona główna</h1>
       <Footer />
     </>

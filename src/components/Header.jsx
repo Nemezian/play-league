@@ -1,10 +1,13 @@
-import Logo from "./Logo"
+// import Logo from "./Logo"
 import Nav from "./Nav"
 
 export default function Header() {
   return (
-    <header className="sticky top-0 z-[1] mx-auto  flex w-full max-w-7xl flex-wrap items-center justify-between border-b border-gray-100 bg-background p-[2em] font-sans font-bold uppercase text-text-primary backdrop-blur-[100px] dark:border-gray-800 dark:bg-d-background dark:text-d-text-primary">
-      <Logo />
+    <header className="flex justify-between items-center px-4 py-2">
+      <div className="flex items-center">
+        {/* <Logo /> */}
+        Logo
+      </div>
       <Nav />
     </header>
   )
