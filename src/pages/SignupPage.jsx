@@ -1,3 +1,9 @@
+import { Nav } from "../components"
+
 export default function SignupPage() {
-  return <></>
+  return (
+    <>
+      <Nav />
+    </>
+  )
 }

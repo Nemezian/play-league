@@ -19,12 +19,8 @@
   }
 
   body {
-    @apply font-Roboto flex flex-col;
+    @apply font-Roboto flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white;
     min-height: 100vh;
-  }
-
-  button {
-    @apply px-4 py-2 border bg-gradient-to-r from-[var(--primary-dark)] to-[var(--primary-light)]  text-white;
   }
 
   h2 {

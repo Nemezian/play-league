@@ -1,13 +1,14 @@
-import Footer from "../components/Footer"
-import Header from "../components/Header"
-import Nav from "../components/Nav"
+import { Footer, Nav } from "../components"
+import { Flowbite } from "flowbite-react"
 
 export default function HomePage() {
   return (
     <>
-      <Header />
-      <h1>Strona główna</h1>
-      <Footer />
+      <Flowbite>
+        <Nav />
+        <h1>Strona główna</h1>
+        <Footer />
+      </Flowbite>
     </>
   )
 }
