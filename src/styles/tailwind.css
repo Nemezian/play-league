@@ -4,14 +4,14 @@
 
 @import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap");
 
-:root {
+/* :root {
   --primary-dark: #5651e5;
   --primary-light: #709dff;
 
   margin: 0 auto;
   padding: 1rem;
   text-align: center;
-}
+} */
 
 @layer base {
   html {
@@ -19,11 +19,12 @@
   }
 
   body {
-    @apply font-Roboto flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white;
-    min-height: 100vh;
+    @apply font-Roboto bg-primary text-white;
   }
 
-  h2 {
-    @apply text-xl font-bold;
-  }
+  /* a {
+    &:hover {
+      box-shadow: 0px 4px 0px 0px #005b41;
+    }
+  } */
 }
