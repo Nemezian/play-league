@@ -7,6 +7,7 @@ export default {
   theme: {
     fontFamily: {
       Roboto: ["Roboto", "sans-serif"],
+      BlackopsOne: ["Black Ops One", "system-ui"],
     },
     extend: {
       colors: {

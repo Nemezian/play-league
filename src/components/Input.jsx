@@ -11,8 +11,8 @@ export default function Input({
   placeholder,
   customClass,
 }) {
-  const fixedInputClass =
-    "rounded-md appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-purple-500 focus:border-purple-500 focus:z-10 sm:text-sm"
+  // const fixedInputClass =
+  //   "rounded-md appearance-none w-4/5 mx-auto relative block px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-purple-500 focus:border-purple-500 focus:z-10 sm:text-sm"
 
   return (
     <div className="my-5">
@@ -20,6 +20,7 @@ export default function Input({
         {labelText}
       </label>
       <input
+        {...console.log(`${customClass}`)}
         onChange={handleChange}
         value={value}
         id={id}
@@ -27,7 +28,7 @@ export default function Input({
         type={type}
         autoComplete={autoComplete}
         required={isRequired}
-        className={`${fixedInputClass} ${customClass}`}
+        className={`${customClass}`}
         placeholder={placeholder}
       />
     </div>

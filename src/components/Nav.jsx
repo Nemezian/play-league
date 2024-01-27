@@ -11,7 +11,7 @@ export default function Nav() {
 
   return (
     <nav className="flex justify-between items-center h-24 max-w-[1240px] mx-auto px-4 text-white">
-      <h1 className="w-full text-3xl font-bold uppercase justify-start text-fourth text">
+      <h1 className="w-full text-5xl font-BlackopsOne uppercase justify-start text-fourth">
         <NavLink to="/">Play league</NavLink>
       </h1>
       <div className="hidden md:flex">
@@ -40,11 +40,11 @@ export default function Nav() {
       <div
         className={
           nav
-            ? "fixed left-0 top-0 w-[60%] h-full border-r border-r-secondary bg-primary ease-in-out duration-500"
+            ? "fixed left-0 top-0 w-[60%] h-full border-r border-r-secondary bg-primary ease-in-out duration-500 z-50"
             : "ease-in-out duration-500 fixed left-[-100%]"
         }
       >
-        <h1 className="w-full text-3xl font-bold text-fourth m-4 uppercase">
+        <h1 className=" text-2xl font-BlackopsOne text-fourth justify-start m-4 uppercase">
           Play league
         </h1>
         <NavLink
@@ -61,10 +61,7 @@ export default function Nav() {
           Rejestracja
         </NavLink>
 
-        <NavLink
-          className="block px-4 py-3 bg-fourth hover:bg-third"
-          to="/login"
-        >
+        <NavLink className="block p-3 bg-fourth hover:bg-third" to="/login">
           Zaloguj się
         </NavLink>
       </div>
