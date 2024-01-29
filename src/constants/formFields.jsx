@@ -35,6 +35,8 @@ const signupFields = [
     autoComplete: "username",
     isRequired: true,
     placeholder: "Username",
+    customClass:
+      "rounded-md appearance-none w-3/5 max-w-xl mx-auto relative block px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-fourth focus:border-fourth focus:z-10 sm:text-sm",
   },
   {
     labelText: "Email address",
@@ -45,6 +47,8 @@ const signupFields = [
     autoComplete: "email",
     isRequired: true,
     placeholder: "Email address",
+    customClass:
+      "rounded-md appearance-none w-3/5 max-w-xl mx-auto relative block px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-fourth focus:border-fourth focus:z-10 sm:text-sm",
   },
   {
     labelText: "Password",
@@ -55,6 +59,8 @@ const signupFields = [
     autoComplete: "current-password",
     isRequired: true,
     placeholder: "Password",
+    customClass:
+      "rounded-md appearance-none w-3/5 max-w-xl mx-auto relative block px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-fourth focus:border-fourth focus:z-10 sm:text-sm",
   },
   {
     labelText: "Confirm Password",
@@ -65,6 +71,8 @@ const signupFields = [
     autoComplete: "confirm-password",
     isRequired: true,
     placeholder: "Confirm Password",
+    customClass:
+      "rounded-md appearance-none w-3/5 max-w-xl mx-auto relative block px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-fourth focus:border-fourth focus:z-10 sm:text-sm",
   },
 ]
 
