@@ -1,44 +1,44 @@
 import { useState, useRef } from "react"
-import { useNavigate } from "react-router-dom"
-import { loginFields } from "../constants/formFields"
 import { useAuth } from "../contexts/AuthContext"
+import { reminderFields } from "../constants/formFields"
 import FormAction from "./FormAction"
-import FormExtra from "./FormExtra"
 import Input from "./Input"
 import Alert from "./Alert"
 
-const fields = loginFields
+const fields = reminderFields
 let fieldsState = {}
 fields.forEach((field) => (fieldsState[field.id] = ""))
 
-export default function Login() {
-  const [loginState, setLoginState] = useState(fieldsState)
+export default function RemindMe() {
   const emailRef = useRef()
-  const passwordRef = useRef()
-  const { login } = useAuth()
+  const [reminderState, setRemindState] = useState(fieldsState)
   const [error, setError] = useState("")
+  const [message, setMessage] = useState("")
   const [loading, setLoading] = useState(false)
-  const navigate = useNavigate()
+  const { resetPassword } = useAuth()
 
-  function handleSubmit(e) {
+  const handleChange = (e) => {
+    setRemindState({ ...reminderState, [e.target.id]: e.target.value })
+  }
+
+  const handleSubmit = (e) => {
     e.preventDefault()
 
     setError("")
+    setMessage("")
     setLoading(true)
-    login(emailRef.current.value, passwordRef.current.value)
+
+    resetPassword(emailRef.current.value)
       .then(() => {
-        navigate("/dashboard")
+        setMessage("Wysłano e-mail z przypomnieniem")
       })
       .catch((e) => {
-        setError("Niepomyślna próba logowania")
+        setError("Nie udało się wysłać e-maila")
+        console.error("An error occurred while sending the email", e)
       })
       .finally(() => {
         setLoading(false)
       })
-  }
-
-  const handleChange = (e) => {
-    setLoginState({ ...loginState, [e.target.id]: e.target.value })
   }
 
   return (
@@ -48,13 +48,18 @@ export default function Login() {
           {error}
         </Alert>
       )}
+      {message && (
+        <Alert message={message} type="success">
+          {message}
+        </Alert>
+      )}
       <form className="mt-8 space-y-6 " onSubmit={handleSubmit}>
-        <div className="-space-y-px">
+        <div className="-space-y-13">
           {fields.map((field) => (
             <Input
               key={field.id}
               handleChange={handleChange}
-              value={loginState[field.id]}
+              value={reminderState[field.id]}
               labelText={field.labelText}
               labelFor={field.labelFor}
               id={field.id}
@@ -63,20 +68,12 @@ export default function Login() {
               autoComplete={field.autoComplete}
               customClass={field.customClass}
               isRequired={field.isRequired}
-              ref={
-                field.id === "email-address"
-                  ? emailRef
-                  : field.id === "password"
-                    ? passwordRef
-                    : null
-              }
+              ref={field.id === "email-address" ? emailRef : null}
               placeholder={field.placeholder}
             />
           ))}
         </div>
-
-        <FormExtra />
-        <FormAction disabled={loading} text="Zaloguj się" />
+        <FormAction disabled={loading} text="Wyślij e-mail" />
       </form>
     </>
   )

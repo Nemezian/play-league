@@ -1,9 +1,8 @@
-import { Nav, Signup, FormHeader, Footer } from "../components"
+import { Signup, FormHeader } from "../components"
 
 export default function SignupPage() {
   return (
     <>
-      <Nav />
       <div className="mt-2 md:mt-20">
         <FormHeader
           heading="Rejestracja"
@@ -13,7 +12,6 @@ export default function SignupPage() {
         />
         <Signup />
       </div>
-      <Footer />
     </>
   )
 }

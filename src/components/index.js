@@ -6,5 +6,18 @@ import Input from "./Input"
 import Login from "./Login"
 import Nav from "./Nav"
 import Signup from "./Signup"
+import PrivateRoute from "./PrivateRoute"
+import RemindMe from "./RemindMe"
 
-export { Footer, FormAction, FormExtra, FormHeader, Input, Login, Nav, Signup }
+export {
+  Footer,
+  FormAction,
+  FormExtra,
+  FormHeader,
+  Input,
+  Login,
+  Nav,
+  Signup,
+  PrivateRoute,
+  RemindMe,
+}

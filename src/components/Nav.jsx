@@ -1,12 +1,38 @@
-import { useState } from "react"
-import { NavLink } from "react-router-dom"
+import { useState, useEffect } from "react"
+import { NavLink, useNavigate } from "react-router-dom"
+import { useAuth } from "../contexts/AuthContext"
 import { AiOutlineMenu, AiOutlineClose } from "react-icons/ai"
 
 export default function Nav() {
   const [nav, setNav] = useState(false)
+  const { currentUser, logout } = useAuth()
+  const navigate = useNavigate()
+  const [error, setError] = useState("")
+
+  useEffect(() => {
+    // Add logic here to handle user login/logout
+    // For example, you can update the navbar state based on the currentUser value
+    setNav(false) // Reset the navbar state on login/logout
+  }, [currentUser])
 
   const handleNav = () => {
     setNav(!nav)
+  }
+
+  function handleLogout(e) {
+    e.preventDefault()
+
+    setError("")
+    logout()
+      .then(() => {
+        navigate("/login")
+        console.log("Logged out")
+      })
+      .catch((e) => {
+        setError("Failed to log out")
+        console.log("Could not log out")
+        console.error("An error occurred while logging out", e)
+      })
   }
 
   return (
@@ -16,23 +42,41 @@ export default function Nav() {
       </h1>
       <div className="hidden md:flex">
         <NavLink
-          className="block p-3 whitespace-nowrap hover:bg-secondary"
+          className="block p-3 whitespace-nowrap hover:text-gray-400"
           to="/"
         >
           Strona główna
         </NavLink>
-        <NavLink
-          className="block p-3 whitespace-nowrap hover:bg-secondary"
-          to="/signup"
-        >
-          Rejestracja
-        </NavLink>
-        <NavLink
-          className="block px-4 py-3 bg-fourth rounded whitespace-nowrap hover:bg-third"
-          to="/login"
-        >
-          Zaloguj się
-        </NavLink>
+        {!currentUser ? (
+          <NavLink
+            className="block p-3 whitespace-nowrap hover:text-gray-400"
+            to="/signup"
+          >
+            Rejestracja
+          </NavLink>
+        ) : (
+          <NavLink
+            className="block p-3 whitespace-nowrap hover:text-gray-400"
+            to="/dashboard"
+          >
+            Panel użytkownika
+          </NavLink>
+        )}
+        {currentUser ? (
+          <button
+            className="block px-4 py-3 bg-fourth rounded whitespace-nowrap hover:bg-third"
+            onClick={handleLogout}
+          >
+            Wyloguj się
+          </button>
+        ) : (
+          <NavLink
+            className="block px-4 py-3 bg-fourth rounded whitespace-nowrap hover:bg-third"
+            to="/login"
+          >
+            Zaloguj się
+          </NavLink>
+        )}
       </div>
       <button onClick={handleNav} className="block md:hidden">
         {nav ? <AiOutlineClose size={20} /> : <AiOutlineMenu size={20} />}
@@ -61,9 +105,18 @@ export default function Nav() {
           Rejestracja
         </NavLink>
 
-        <NavLink className="block p-3 bg-fourth hover:bg-third" to="/login">
-          Zaloguj się
-        </NavLink>
+        {currentUser ? (
+          <button
+            className="block p-3 bg-fourth hover:bg-third"
+            onClick={logout}
+          >
+            Wyloguj się
+          </button>
+        ) : (
+          <NavLink className="block p-3 bg-fourth hover:bg-third" to="/login">
+            Zaloguj się
+          </NavLink>
+        )}
       </div>
     </nav>
   )

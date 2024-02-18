@@ -1,79 +1,90 @@
 const loginFields = [
   {
-    labelText: "Email address",
+    labelText: "Adres e-mail",
     labelFor: "email-address",
     id: "email-address",
     name: "email",
     type: "email",
     autoComplete: "email",
     isRequired: true,
-    placeholder: "Email address",
-    customClass:
-      "rounded-md appearance-none w-3/5 max-w-xl mx-auto relative block px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-fourth focus:border-fourth focus:z-10 sm:text-sm",
+    placeholder: "Adres e-mail",
   },
   {
-    labelText: "Password",
+    labelText: "Hasło",
     labelFor: "password",
     id: "password",
     name: "password",
     type: "password",
     autoComplete: "current-password",
     isRequired: true,
-    placeholder: "Password",
-    customClass:
-      "rounded-md appearance-none w-3/5 max-w-xl mx-auto relative block px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-fourth focus:border-fourth focus:z-10 sm:text-sm",
+    placeholder: "Hasło",
   },
 ]
 
 const signupFields = [
   {
-    labelText: "Username",
-    labelFor: "username",
-    id: "username",
-    name: "username",
-    type: "text",
-    autoComplete: "username",
-    isRequired: true,
-    placeholder: "Username",
-    customClass:
-      "rounded-md appearance-none w-3/5 max-w-xl mx-auto relative block px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-fourth focus:border-fourth focus:z-10 sm:text-sm",
-  },
-  {
-    labelText: "Email address",
+    labelText: "Adres e-mail",
     labelFor: "email-address",
     id: "email-address",
     name: "email",
     type: "email",
     autoComplete: "email",
     isRequired: true,
-    placeholder: "Email address",
-    customClass:
-      "rounded-md appearance-none w-3/5 max-w-xl mx-auto relative block px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-fourth focus:border-fourth focus:z-10 sm:text-sm",
+    placeholder: "Adres e-mail",
   },
   {
-    labelText: "Password",
+    labelText: "Imię",
+    labelFor: "first-name",
+    id: "first-name",
+    name: "first-name",
+    type: "text",
+    autoComplete: "given-name",
+    isRequired: true,
+    placeholder: "Imię",
+  },
+  {
+    labelText: "Nazwisko",
+    labelFor: "last-name",
+    id: "last-name",
+    name: "last-name",
+    type: "text",
+    autoComplete: "family-name",
+    isRequired: true,
+    placeholder: "Nazwisko",
+  },
+  {
+    labelText: "Hasło",
     labelFor: "password",
     id: "password",
     name: "password",
     type: "password",
     autoComplete: "current-password",
     isRequired: true,
-    placeholder: "Password",
-    customClass:
-      "rounded-md appearance-none w-3/5 max-w-xl mx-auto relative block px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-fourth focus:border-fourth focus:z-10 sm:text-sm",
+    placeholder: "Hasło",
   },
   {
-    labelText: "Confirm Password",
+    labelText: "Potwierdź hasło",
     labelFor: "confirm-password",
     id: "confirm-password",
     name: "confirm-password",
     type: "password",
     autoComplete: "confirm-password",
     isRequired: true,
-    placeholder: "Confirm Password",
-    customClass:
-      "rounded-md appearance-none w-3/5 max-w-xl mx-auto relative block px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-fourth focus:border-fourth focus:z-10 sm:text-sm",
+    placeholder: "Potwierdź hasło",
   },
 ]
 
-export { loginFields, signupFields }
+const reminderFields = [
+  {
+    labelText: "Adres e-mail",
+    labelFor: "email-address",
+    id: "email-address",
+    name: "email",
+    type: "email",
+    autoComplete: "email",
+    isRequired: true,
+    placeholder: "Adres e-mail",
+  },
+]
+
+export { loginFields, signupFields, reminderFields }

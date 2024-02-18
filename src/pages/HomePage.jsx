@@ -1,10 +1,8 @@
 import { Footer, Nav } from "../components"
-import { Flowbite } from "flowbite-react"
 
 export default function HomePage() {
   return (
     <>
-      <Nav />
       <div className="flex-col text-center h-[100%] justify-end">
         <h1 className="my-6 text-4xl">Strona główna</h1>
         <p className="max-w-[70%] mx-auto">
@@ -22,7 +20,6 @@ export default function HomePage() {
           arcu fermentum cursus. Ut varius a nulla sed elementum. Nunc eu
           malesuada mi. Quisque a ex ac augue pulvinar ultrices.
         </p>
-        <Footer className="mb-0" />
       </div>
     </>
   )
