@@ -48,33 +48,30 @@ export default function Login() {
           {error}
         </Alert>
       )}
-      <form className="mt-8 space-y-6 " onSubmit={handleSubmit}>
-        <div className="-space-y-px">
-          {fields.map((field) => (
-            <Input
-              key={field.id}
-              handleChange={handleChange}
-              value={loginState[field.id]}
-              labelText={field.labelText}
-              labelFor={field.labelFor}
-              id={field.id}
-              name={field.name}
-              type={field.type}
-              autoComplete={field.autoComplete}
-              customClass={field.customClass}
-              isRequired={field.isRequired}
-              ref={
-                field.id === "email-address"
-                  ? emailRef
-                  : field.id === "password"
-                    ? passwordRef
-                    : null
-              }
-              placeholder={field.placeholder}
-            />
-          ))}
-        </div>
-
+      <form onSubmit={handleSubmit}>
+        {fields.map((field) => (
+          <Input
+            key={field.id}
+            handleChange={handleChange}
+            value={loginState[field.id]}
+            labelText={field.labelText}
+            labelFor={field.labelFor}
+            id={field.id}
+            name={field.name}
+            type={field.type}
+            autoComplete={field.autoComplete}
+            customClass={field.customClass}
+            isRequired={field.isRequired}
+            ref={
+              field.id === "email-address"
+                ? emailRef
+                : field.id === "password"
+                  ? passwordRef
+                  : null
+            }
+            placeholder={field.placeholder}
+          />
+        ))}
         <FormExtra />
         <FormAction disabled={loading} text="Zaloguj się" />
       </form>

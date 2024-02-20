@@ -7,7 +7,7 @@ const loginFields = [
     type: "email",
     autoComplete: "email",
     isRequired: true,
-    placeholder: "Adres e-mail",
+    placeholder: "E-mail",
   },
   {
     labelText: "Hasło",
@@ -17,21 +17,11 @@ const loginFields = [
     type: "password",
     autoComplete: "current-password",
     isRequired: true,
-    placeholder: "Hasło",
+    placeholder: "*************",
   },
 ]
 
 const signupFields = [
-  {
-    labelText: "Adres e-mail",
-    labelFor: "email-address",
-    id: "email-address",
-    name: "email",
-    type: "email",
-    autoComplete: "email",
-    isRequired: true,
-    placeholder: "Adres e-mail",
-  },
   {
     labelText: "Imię",
     labelFor: "first-name",
@@ -53,6 +43,16 @@ const signupFields = [
     placeholder: "Nazwisko",
   },
   {
+    labelText: "Adres e-mail",
+    labelFor: "email-address",
+    id: "email-address",
+    name: "email",
+    type: "email",
+    autoComplete: "email",
+    isRequired: true,
+    placeholder: "E-mail",
+  },
+  {
     labelText: "Hasło",
     labelFor: "password",
     id: "password",
@@ -60,7 +60,7 @@ const signupFields = [
     type: "password",
     autoComplete: "current-password",
     isRequired: true,
-    placeholder: "Hasło",
+    placeholder: "*************",
   },
   {
     labelText: "Potwierdź hasło",
@@ -70,7 +70,7 @@ const signupFields = [
     type: "password",
     autoComplete: "confirm-password",
     isRequired: true,
-    placeholder: "Potwierdź hasło",
+    placeholder: "*************",
   },
 ]
 

@@ -2,7 +2,7 @@ import { Link } from "react-router-dom"
 
 export default function FormExtra() {
   return (
-    <div className="flex items-center justify-between  max-w-xl mx-auto w-3/5">
+    <div className="flex flex-row-reverse items-center justify-between">
       {/* <div className="flex items-center">
         <input
           id="remember_me"
@@ -15,7 +15,7 @@ export default function FormExtra() {
         </label>
       </div> */}
 
-      <div className="text-sm mx-auto">
+      <div className="text-sm ">
         <Link
           to={"/remindme"}
           className="font-medium text-fourth hover:text-third"

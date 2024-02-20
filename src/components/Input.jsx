@@ -16,11 +16,14 @@ const Input = React.forwardRef((props, ref) => {
   } = props
 
   const fixedInputClass =
-    "rounded-md appearance-none w-3/5 max-w-xl mx-auto relative block px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-fourth focus:border-fourth focus:z-10 sm:text-sm"
+    "rounded-lg appearance-none  mb-2 block w-full p-1.5 md:p-2.5 px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-fourth focus:border-fourth focus:z-10 sm:text-sm"
 
   return (
-    <div className="my-5">
-      <label htmlFor={labelFor} className="sr-only">
+    <div>
+      <label
+        className="block mb-2 text-xs font-medium text-white"
+        htmlFor={labelFor}
+      >
         {labelText}
       </label>
       <input
@@ -32,7 +35,7 @@ const Input = React.forwardRef((props, ref) => {
         type={type}
         autoComplete={autoComplete}
         required={isRequired}
-        className={`${fixedInputClass} ${customClass}`}
+        className={`${customClass} ${fixedInputClass}`}
         placeholder={placeholder}
       />
     </div>

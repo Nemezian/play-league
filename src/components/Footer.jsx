@@ -1,6 +1,6 @@
 export default function Footer() {
   return (
-    <footer className="mx-auto mt-auto w-full max-w-7xl px-8 py-4 text-center text-[0.8rem] relative bottom-0">
+    <footer className="mx-auto mt-auto w-full max-w-7xl px-8 py-4 text-center text-[0.8rem] bottom-0">
       <span>
         &copy; {new Date().getFullYear()} Autor: Patryk Graj
         <br />

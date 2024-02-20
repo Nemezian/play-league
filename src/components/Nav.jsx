@@ -79,18 +79,23 @@ export default function Nav() {
         )}
       </div>
       <button onClick={handleNav} className="block md:hidden">
-        {nav ? <AiOutlineClose size={20} /> : <AiOutlineMenu size={20} />}
+        {!nav && <AiOutlineMenu size={20} />}
       </button>
       <div
         className={
           nav
             ? "fixed left-0 top-0 w-[60%] h-full border-r border-r-secondary bg-primary ease-in-out duration-500 z-50"
-            : "ease-in-out duration-500 fixed left-[-100%]"
+            : "fixed ease-in-out duration-500 left-[-100%]"
         }
       >
-        <h1 className=" text-2xl font-BlackopsOne text-fourth justify-start m-4 uppercase">
-          Play league
-        </h1>
+        <div className="flex justify-between mr-3">
+          <h1 className=" text-2xl font-BlackopsOne text-fourth justify-start m-4 uppercase">
+            Play league
+          </h1>
+          <button onClick={handleNav} className="block md:hidden">
+            {nav ? <AiOutlineClose size={20} /> : <AiOutlineMenu size={20} />}
+          </button>
+        </div>
         <NavLink
           className="block p-3 border-b border-secondary hover:bg-secondary"
           to="/"
@@ -98,13 +103,21 @@ export default function Nav() {
           Strona główna
         </NavLink>
 
-        <NavLink
-          className="block p-3 border-b border-secondary hover:bg-secondary"
-          to="/signup"
-        >
-          Rejestracja
-        </NavLink>
-
+        {!currentUser ? (
+          <NavLink
+            className="block p-3 border-b border-secondary hover:bg-secondary"
+            to="/signup"
+          >
+            Rejestracja
+          </NavLink>
+        ) : (
+          <NavLink
+            className="block p-3 border-b border-secondary hover:bg-secondary"
+            to="/dashboard"
+          >
+            Panel użytkownika
+          </NavLink>
+        )}
         {currentUser ? (
           <button
             className="block p-3 bg-fourth hover:bg-third"

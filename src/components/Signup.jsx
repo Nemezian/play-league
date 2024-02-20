@@ -63,44 +63,36 @@ export default function Signup() {
           {error}
         </Alert>
       )}
-      <form className="mt-8 space-y-6 " onSubmit={handleSubmit}>
-        <div className="-space-y-13">
-          {fields.map((field) => (
-            <div key={field.id} className="">
-              <label
-                className="flex flex-col w-3/5 max-w-xl mx-auto my-0"
-                htmlFor={field.id}
-              >
-                {field.labelText}
-              </label>
-              <Input
-                handleChange={handleChange}
-                value={signupState[field.id]}
-                labelFor={field.id}
-                id={field.id}
-                name={field.name}
-                type={field.type}
-                autoComplete={field.autoComplete}
-                customClass={field.customClass}
-                isRequired={field.isRequired}
-                ref={
-                  field.id === "email-address"
-                    ? emailRef
-                    : field.id === "first-name"
-                      ? firstNameRef
-                      : field.id === "last-name"
-                        ? lastNameRef
-                        : field.id === "password"
-                          ? passwordRef
-                          : field.id === "confirm-password"
-                            ? passwordConfirmRef
-                            : null
-                }
-                placeholder={field.placeholder}
-              />
-            </div>
-          ))}
-        </div>
+      <form onSubmit={handleSubmit}>
+        {fields.map((field) => (
+          <Input
+            key={field.id}
+            handleChange={handleChange}
+            value={signupState[field.id]}
+            labelText={field.labelText}
+            labelFor={field.labelFor}
+            id={field.id}
+            name={field.name}
+            type={field.type}
+            autoComplete={field.autoComplete}
+            customClass={field.customClass}
+            isRequired={field.isRequired}
+            ref={
+              field.id === "email-address"
+                ? emailRef
+                : field.id === "first-name"
+                  ? firstNameRef
+                  : field.id === "last-name"
+                    ? lastNameRef
+                    : field.id === "password"
+                      ? passwordRef
+                      : field.id === "confirm-password"
+                        ? passwordConfirmRef
+                        : null
+            }
+            placeholder={field.placeholder}
+          />
+        ))}
         <FormAction disabled={loading} text="Zarejestruj się" />
       </form>
     </>
