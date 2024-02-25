@@ -14,7 +14,7 @@ export default function App() {
               <Route key={path} path={path} element={element} />
             ))}
           </Routes>
-          <Footer />
+          {/* <Footer /> */}
         </AuthProvider>
       </BrowserRouter>
     </div>

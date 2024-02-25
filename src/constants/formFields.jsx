@@ -74,6 +74,39 @@ const signupFields = [
   },
 ]
 
+const changePasswordFields = [
+  {
+    labelText: "Stare hasło",
+    labelFor: "old-password",
+    id: "old-password",
+    name: "old-password",
+    type: "password",
+    autoComplete: "false",
+    isRequired: true,
+    placeholder: "Wprowadź stare hasło",
+  },
+  {
+    labelText: "Nowe hasło",
+    labelFor: "new-password",
+    id: "new-password",
+    name: "new-password",
+    type: "password",
+    autoComplete: "false",
+    isRequired: true,
+    placeholder: "Nowe hasło",
+  },
+  {
+    labelText: "Potwierdź nowe hasło",
+    labelFor: "confirm-new-password",
+    id: "confirm-new-password",
+    name: "confirm-new-password",
+    type: "password",
+    autoComplete: "false",
+    isRequired: true,
+    placeholder: "Potwierdź nowe hasło",
+  },
+]
+
 const reminderFields = [
   {
     labelText: "Adres e-mail",
@@ -87,4 +120,4 @@ const reminderFields = [
   },
 ]
 
-export { loginFields, signupFields, reminderFields }
+export { loginFields, signupFields, changePasswordFields, reminderFields }

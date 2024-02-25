@@ -8,6 +8,7 @@ import Nav from "./Nav"
 import Signup from "./Signup"
 import PrivateRoute from "./PrivateRoute"
 import RemindMe from "./RemindMe"
+import PasswordChange from "./PasswordChange"
 
 export {
   Footer,
@@ -20,4 +21,5 @@ export {
   Signup,
   PrivateRoute,
   RemindMe,
+  PasswordChange,
 }
