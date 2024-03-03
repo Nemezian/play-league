@@ -95,7 +95,7 @@ export default function PasswordChange() {
             placeholder={field.placeholder}
           />
         ))}
-        <FormAction disabled={loading} text="Zmień hasło" />
+        <FormAction disabled={loading} text="Aktualizuj" />
       </form>
     </div>
   )

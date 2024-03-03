@@ -43,7 +43,19 @@ export function useFirebaseAuth() {
   const resetPassword = (email) => sendPasswordResetEmail(auth, email)
   const updateEmail = (email) => updateFirebaseEmail(currentUser, email)
   const updatePassword = (password) =>
-    updateFirebasePassword(currentUser, password)
+    updateFirebasePassword(currentUser, password).then(async () => {
+      const ref = doc(firestore, "users", currentUser.uid)
+      const docData = {
+        updatedAt: new Date(),
+      }
+      await setDoc(ref, docData, { merge: true })
+        .then(() => {
+          console.log("Document successfully written!")
+        })
+        .catch((error) => {
+          console.error("Error adding document: ", error)
+        })
+    })
 
   const getUserInfo = async (userId) => {
     const docRef = doc(firestore, "users", userId)
