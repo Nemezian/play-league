@@ -10,13 +10,12 @@ const fields = changePasswordFields
 let fieldsState = {}
 fields.forEach((field) => (fieldsState[field.id] = ""))
 
-export default function PasswordChange() {
+export default function PasswordChange({ onFormSubmit, submitMessage }) {
   const passwordRef = useRef()
   const newPasswordRef = useRef()
   const newPasswordConfirmRef = useRef()
   const { updatePassword } = useAuth()
   const [error, setError] = useState("")
-  const [message, setMessage] = useState("")
   const [loading, setLoading] = useState(false)
   const [changePasswordState, setChangePasswordState] = useState(fieldsState)
 
@@ -34,15 +33,17 @@ export default function PasswordChange() {
     }
 
     setError("")
-    setMessage("")
     setLoading(true)
 
     updatePassword(newPasswordRef.current.value.trim())
       .then(() => {
-        setMessage("Pomyślnie zmieniono hasło")
+        submitMessage("Hasło zostało pomyślnie zmienione")
+        onFormSubmit("success")
       })
       .catch((e) => {
         setError("Niepomyślna próba zmiany hasła")
+        onFormSubmit("error")
+        console.log("error:", error)
         console.error("An error occurred while signing up", e)
       })
       .finally(() => {
@@ -64,11 +65,11 @@ export default function PasswordChange() {
           {error}
         </Alert>
       )}
-      {message && (
+      {/* {message && (
         <Alert message={message} type="success">
           {message}
         </Alert>
-      )}
+      )} */}
       <form onSubmit={handleSubmit}>
         {fields.map((field) => (
           <Input

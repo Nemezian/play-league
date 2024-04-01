@@ -9,8 +9,13 @@ import Signup from "./Signup"
 import PrivateRoute from "./PrivateRoute"
 import RemindMe from "./RemindMe"
 import PasswordChange from "./PasswordChange"
+import Alert from "./Alert"
+import TeamCreation from "./TeamCreation"
+import TeamJoin from "./TeamJoin"
+import TeamManagement from "./TeamManagement.jsx"
 
 export {
+  Alert,
   Footer,
   FormAction,
   FormExtra,
@@ -22,4 +27,7 @@ export {
   PrivateRoute,
   RemindMe,
   PasswordChange,
+  TeamCreation,
+  TeamJoin,
+  TeamManagement,
 }

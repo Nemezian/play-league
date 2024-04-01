@@ -120,4 +120,27 @@ const reminderFields = [
   },
 ]
 
+const teamCreationFields = [
+  {
+    labelText: "Nazwa drużyny",
+    labelFor: "team-name",
+    id: "team-name",
+    name: "team-name",
+    type: "text",
+    autoComplete: "team-name",
+    isRequired: true,
+    placeholder: "Nazwa drużyny",
+  },
+  {
+    labelText: "Opis drużyny",
+    labelFor: "team-description",
+    id: "team-description",
+    name: "team-description",
+    type: "text",
+    autoComplete: "team-description",
+    isRequired: true,
+    placeholder: "Opis drużyny",
+  },
+]
+
 export { loginFields, signupFields, changePasswordFields, reminderFields }

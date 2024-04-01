@@ -7,5 +7,13 @@ import TeamCreationPage from "./TeamCreationPage"
 import TeamManagementPage from "./TeamManagementPage"
 import TeamJoinPage from "./TeamJoinPage"
 
-
-export { HomePage, LoginPage, SignupPage, RemindMePage, DashboardPage, TeamCreationPage, TeamManagementPage}
+export {
+  HomePage,
+  LoginPage,
+  SignupPage,
+  RemindMePage,
+  DashboardPage,
+  TeamCreationPage,
+  TeamManagementPage,
+  TeamJoinPage,
+}

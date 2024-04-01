@@ -1,17 +1,17 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "../contexts/AuthContext"
-import { PasswordChange } from "../components"
+import { PasswordChange, Alert } from "../components"
 import ReactModal from "react-modal"
+import { AiOutlineClose } from "react-icons/ai"
 
 ReactModal.setAppElement("#root")
 
 export default function DashboardPage() {
-  const [error, setError] = useState("")
+  const [message, setMessage] = useState("")
   const [userInfo, setUserInfo] = useState(null)
-  const { currentUser, logout, getUserInfo } = useAuth()
+  const { currentUser, getUserInfo } = useAuth()
   const [modalIsOpen, setIsOpen] = useState(false)
-  const navigate = useNavigate()
 
   useEffect(() => {
     if (currentUser && currentUser.uid) {
@@ -27,56 +27,52 @@ export default function DashboardPage() {
     setIsOpen(false)
   }
 
-  // function handleLogout(e) {
-  //   e.preventDefault()
+  const getFormResult = (result) => {
+    if (result === "success") {
+      closeModal()
+    }
+  }
 
-  //   setError("")
-  //   logout()
-  //     .then(() => {
-  //       navigate("/login")
-  //       console.log("Logged out")
-  //     })
-  //     .catch((e) => {
-  //       setError("Niepomyślna próba wylogowania")
-  //       console.log("Could not log out")
-  //       console.error("An error occurred while logging out", e)
-  //     })
-  // }
+  const getFormMessage = (message) => {
+    setMessage(message)
+  }
+
   return (
     <>
       <div className="container mx-auto flex flex-col items-center justify-center h-[640px]">
-        {error && (
-          <Alert message={error} type="error">
-            {error}
-          </Alert>
-        )}
         <h1 className="text-3xl font-bold mb-4">Panel użytkownika</h1>
         {userInfo ? (
           <h2 className="text-xl mb-4">
             Witaj, {userInfo.firstName + " " + userInfo.lastName}!
           </h2>
         ) : null}
+        {message && (
+          <Alert message={message} type="success">
+            {message}
+          </Alert>
+        )}
         <div className="flex flex-row justify-between w-full ">
-          <div className="">
+          <div>
             <h2 className="text-xl font-bold mb-4">Twoje dane:</h2>
-            <div className="flex flex-col items-start justify-start">
-              <p>
-                <strong>Email:</strong> {currentUser.email}
+            <div className="flex flex-col items-start justify-start text-lg">
+              <p className="py-1.5">
+                <strong>Email:</strong>
+                <br /> {currentUser.email}
               </p>
               {userInfo ? (
                 <>
-                  <p>
-                    <strong>Imię:</strong> {userInfo.firstName}
+                  <p className="py-1.5">
+                    <strong>Imię:</strong> <br />
+                    {userInfo.firstName}
                   </p>
-                  <p>
-                    <strong>Nazwisko:</strong> {userInfo.lastName}
+                  <p className="py-1.5">
+                    <strong>Nazwisko:</strong> <br />
+                    {userInfo.lastName}
                   </p>
-                  <p>
-                    <strong>Drużyna:</strong> {userInfo.teamName || "Brak"}
+                  <p className="py-1.5">
+                    <strong>Drużyna:</strong>
+                    <br /> {userInfo.teamName || "Brak"}
                   </p>
-                  {/* <p>
-                  <strong>Telefon:</strong> {userInfo.phone}
-                </p> */}
                 </>
               ) : null}
             </div>
@@ -88,27 +84,21 @@ export default function DashboardPage() {
             </button>
           </div>
           <div>
-            {/* <button
-            className="bg-fourth hover:bg-third text-white py-2 px-4 rounded"
-            onClick={handleLogout}
-          >
-            Log Out
-          </button> */}
-
             <ReactModal
               isOpen={modalIsOpen}
-              //onRequestClose={closeModal}
-              // onRequestClose={handlePasswordChange}
-              className=" overflow-y-auto overflow-x-hidden bg-secondary rounded-lg p-4"
-              // overlayClassName="overlay"
+              shouldCloseOnOverlayClick={true}
+              onRequestClose={closeModal}
+              className=" bg-secondary rounded-lg p-4 top-1/2 left-1/2 absolute transform -translate-x-1/2 -translate-y-1/2 w-[400px] h-auto"
             >
-              <button
-                className="bg-fourth  hover:bg-third text-white justify-end mt-3 py-1 px-2 rounded"
-                onClick={closeModal}
-              >
-                X
-              </button>
-              <PasswordChange />
+              <div className="flex justify-end">
+                <button className="block" onClick={closeModal}>
+                  <AiOutlineClose size={20} />
+                </button>
+              </div>
+              <PasswordChange
+                onFormSubmit={getFormResult}
+                submitMessage={getFormMessage}
+              />
             </ReactModal>
           </div>
         </div>

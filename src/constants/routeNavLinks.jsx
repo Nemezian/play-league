@@ -5,6 +5,9 @@ import {
   RemindMePage,
   HomePage,
   DashboardPage,
+  TeamCreationPage,
+  TeamJoinPage,
+  TeamManagementPage,
 } from "../pages"
 
 const routes = [
@@ -17,6 +20,30 @@ const routes = [
     element: (
       <PrivateRoute>
         <DashboardPage />
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: "/team-creation",
+    element: (
+      <PrivateRoute>
+        <TeamCreationPage />
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: "/team-management",
+    element: (
+      <PrivateRoute>
+        <TeamManagementPage />
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: "/team-join",
+    element: (
+      <PrivateRoute>
+        <TeamJoinPage />
       </PrivateRoute>
     ),
   },

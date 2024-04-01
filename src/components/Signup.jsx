@@ -1,10 +1,10 @@
 import { useState, useRef } from "react"
 import { signupFields } from "../constants/formFields"
-import FormAction from "./FormAction"
-import Input from "./Input"
 import { useAuth } from "../contexts/AuthContext"
 import { useNavigate } from "react-router-dom"
 import Alert from "./Alert"
+import FormAction from "./FormAction"
+import Input from "./Input"
 
 const fields = signupFields
 let fieldsState = {}
