@@ -40,26 +40,34 @@ export default function Nav() {
       <h1 className="w-full text-5xl font-BlackopsOne uppercase justify-start text-fourth">
         <NavLink to="/">Play league</NavLink>
       </h1>
-      <div className="hidden md:flex">
+      <div className="hidden lg:flex">
         <NavLink
           className="block p-3 whitespace-nowrap hover:text-gray-400"
           to="/"
         >
           Strona główna
         </NavLink>
-        {!currentUser ? (
+        {currentUser ? (
           <NavLink
             className="block p-3 whitespace-nowrap hover:text-gray-400"
-            to="/signup"
+            to="/team-creation"
           >
-            Rejestracja
+            Stwórz drużynę
           </NavLink>
-        ) : (
+        ) : null}
+        {currentUser ? (
           <NavLink
             className="block p-3 whitespace-nowrap hover:text-gray-400"
             to="/dashboard"
           >
             Panel użytkownika
+          </NavLink>
+        ) : (
+          <NavLink
+            className="block p-3 whitespace-nowrap hover:text-gray-400"
+            to="/signup"
+          >
+            Rejestracja
           </NavLink>
         )}
         {currentUser ? (
@@ -78,7 +86,7 @@ export default function Nav() {
           </NavLink>
         )}
       </div>
-      <button onClick={handleNav} className="block md:hidden">
+      <button onClick={handleNav} className="block lg:hidden">
         {!nav && <AiOutlineMenu size={20} />}
       </button>
       <div
@@ -92,7 +100,7 @@ export default function Nav() {
           <h1 className=" text-2xl font-BlackopsOne text-fourth justify-start m-4 uppercase">
             Play league
           </h1>
-          <button onClick={handleNav} className="block md:hidden">
+          <button onClick={handleNav} className="block lg:hidden">
             {nav ? <AiOutlineClose size={20} /> : <AiOutlineMenu size={20} />}
           </button>
         </div>
@@ -102,25 +110,32 @@ export default function Nav() {
         >
           Strona główna
         </NavLink>
-
-        {!currentUser ? (
+        {currentUser ? (
           <NavLink
             className="block p-3 border-b border-secondary hover:bg-secondary"
-            to="/signup"
+            to="/team-creation"
           >
-            Rejestracja
+            Stwórz drużynę
           </NavLink>
-        ) : (
+        ) : null}
+        {currentUser ? (
           <NavLink
             className="block p-3 border-b border-secondary hover:bg-secondary"
             to="/dashboard"
           >
             Panel użytkownika
           </NavLink>
+        ) : (
+          <NavLink
+            className="block p-3 border-b border-secondary hover:bg-secondary"
+            to="/signup"
+          >
+            Rejestracja
+          </NavLink>
         )}
         {currentUser ? (
           <button
-            className="block p-3 bg-fourth hover:bg-third"
+            className="block p-3 bg-fourth hover:bg-third w-full text-start"
             onClick={logout}
           >
             Wyloguj się

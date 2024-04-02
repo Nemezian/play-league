@@ -11,16 +11,16 @@ let fieldsState = {}
 fields.forEach((field) => (fieldsState[field.id] = ""))
 
 export default function Signup() {
+  const [error, setError] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [signupState, setSignupState] = useState(fieldsState)
+  const { signup } = useAuth()
   const emailRef = useRef()
   const firstNameRef = useRef()
   const lastNameRef = useRef()
   const passwordRef = useRef()
   const passwordConfirmRef = useRef()
-  const { signup } = useAuth()
-  const [error, setError] = useState("")
-  const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
-  const [signupState, setSignupState] = useState(fieldsState)
 
   async function handleSubmit(e) {
     e.preventDefault()

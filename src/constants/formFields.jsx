@@ -127,7 +127,7 @@ const teamCreationFields = [
     id: "team-name",
     name: "team-name",
     type: "text",
-    autoComplete: "team-name",
+    autoComplete: "false",
     isRequired: true,
     placeholder: "Nazwa drużyny",
   },
@@ -136,11 +136,17 @@ const teamCreationFields = [
     labelFor: "team-description",
     id: "team-description",
     name: "team-description",
-    type: "text",
-    autoComplete: "team-description",
-    isRequired: true,
+    type: "longText",
+    autoComplete: "false",
+    isRequired: false,
     placeholder: "Opis drużyny",
   },
 ]
 
-export { loginFields, signupFields, changePasswordFields, reminderFields }
+export {
+  loginFields,
+  signupFields,
+  changePasswordFields,
+  reminderFields,
+  teamCreationFields,
+}
