@@ -88,7 +88,7 @@ export default function DashboardPage() {
               isOpen={modalIsOpen}
               shouldCloseOnOverlayClick={true}
               onRequestClose={closeModal}
-              className=" bg-secondary rounded-lg p-4 top-1/2 left-1/2 absolute transform -translate-x-1/2 -translate-y-1/2 w-[400px] h-auto"
+              className=" bg-secondary rounded-lg p-4 top-1/2 left-1/2 absolute transform -translate-x-1/2 -translate-y-1/2 w-[400px] h-auto z-50"
             >
               <div className="flex justify-end">
                 <button className="block" onClick={closeModal}>

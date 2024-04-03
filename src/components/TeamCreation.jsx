@@ -17,7 +17,9 @@ export default function TeamCreation() {
   const [message, setMessage] = useState("")
   const [leagues, setLeagues] = useState([])
   const [selectedLeague, setSelectedLeague] = useState("")
-  const { createTeam, getLeagues } = useAuth()
+  const [isPlayer, setIsPlayer] = useState(false)
+  const [isCaptain, setIsCaptain] = useState(false)
+  const { createTeam, getLeagues, currentUser, getUserInfo } = useAuth()
   const nameRef = useRef()
   const descriptionRef = useRef()
 
@@ -65,10 +67,38 @@ export default function TeamCreation() {
       })
   }, [])
 
+  useEffect(() => {
+    {
+      getUserInfo(currentUser.uid).then((userInfo) => {
+        console.log("User info fetched", userInfo)
+        setIsPlayer(userInfo.role === "player")
+        setIsCaptain(userInfo.role === "captain")
+      })
+    }
+  })
+
   async function handleSubmit(e) {
     e.preventDefault()
 
     setLoading(true)
+    setError("")
+
+    if (selectedLeague === "") {
+      setError("Proszę najpierw wybrać ligę")
+      setLoading(false)
+      return
+    }
+    if (isCaptain) {
+      setError("Jesteś już kapitanem swojej drużyny!")
+      setLoading(false)
+      return
+    }
+    if (isPlayer) {
+      setError("Jesteś już członkiem drużyny!")
+      setLoading(false)
+      return
+    }
+
     createTeam(
       nameRef.current.value.trim(),
       descriptionRef.current.value.trim(),
@@ -142,8 +172,8 @@ export default function TeamCreation() {
           </select>
         </div>
         <div className="flex flex-col space-y-2 mt-4">
-          <label htmlFor="team-description" className="text-white">
-            Opis drużyny
+          <label htmlFor="team-description" className="flex text-white">
+            Opis drużyny<p className="font-thin">(opcjonalnie)</p>
           </label>
           <textarea
             id="team-description"

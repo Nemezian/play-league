@@ -20,6 +20,7 @@ import {
 
 export function useFirebaseAuth() {
   const [currentUser, setCurrentUser] = useState()
+  const [userInfos, setUserInfos] = useState()
   const [loading, setLoading] = useState(true)
 
   const signup = (email, password, firstName, lastName) =>
@@ -82,6 +83,19 @@ export function useFirebaseAuth() {
     }
   }
 
+  const getUserRole = async (userId) => {
+    const docRef = doc(firestore, "users", userId)
+    const mySnapshot = await getDoc(docRef)
+    if (mySnapshot.exists()) {
+      const docData = mySnapshot.data()
+      console.log("Document data: ", docData)
+      return docData.role
+    } else {
+      console.log("No such document!")
+      return null
+    }
+  }
+
   const getLeagues = async () => {
     const querySnapshot = await getDocs(collection(firestore, "leagues"))
     const fetchedLeagues = querySnapshot.docs.map((doc) => ({
@@ -138,6 +152,12 @@ export function useFirebaseAuth() {
     return unsubscribe
   }, [])
 
+  useEffect(() => {
+    if (currentUser && currentUser.uid) {
+      getUserInfo(currentUser.uid).then((info) => setUserInfos(info))
+    }
+  }, [currentUser])
+
   return {
     currentUser,
     loading,
@@ -151,5 +171,7 @@ export function useFirebaseAuth() {
     getLeagues,
     createLeague,
     createTeam,
+    getUserRole,
+    userInfos,
   }
 }
