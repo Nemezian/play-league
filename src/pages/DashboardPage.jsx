@@ -1,23 +1,15 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "../contexts/AuthContext"
-import { PasswordChange, Alert } from "../components"
+import { PasswordChange, Alert, Spinner } from "../components"
 import ReactModal from "react-modal"
 import { AiOutlineClose } from "react-icons/ai"
 
-ReactModal.setAppElement("#root")
-
 export default function DashboardPage() {
   const [message, setMessage] = useState("")
-  const [userInfo, setUserInfo] = useState(null)
-  const { currentUser, getUserInfo } = useAuth()
+  const { currentUser, userInfos, getMemberTeamNameFromReference } = useAuth()
   const [modalIsOpen, setIsOpen] = useState(false)
-
-  useEffect(() => {
-    if (currentUser && currentUser.uid) {
-      getUserInfo(currentUser.uid).then((info) => setUserInfo(info))
-    }
-  }, [currentUser, getUserInfo])
+  const [teamName, setTeamName] = useState("")
 
   const openModal = () => {
     setIsOpen(true)
@@ -37,13 +29,25 @@ export default function DashboardPage() {
     setMessage(message)
   }
 
+  useEffect(() => {
+    if (userInfos) {
+      getMemberTeamNameFromReference(userInfos.teamId)
+        .then((result) => {
+          setTeamName(result.teamName)
+        })
+        .catch((e) => {
+          console.error("An error occurred while fetching team name", e)
+        })
+    }
+  }, [userInfos])
+
   return (
     <>
       <div className="container mx-auto flex flex-col items-center justify-center h-[640px]">
         <h1 className="text-3xl font-bold mb-4">Panel użytkownika</h1>
-        {userInfo ? (
+        {userInfos ? (
           <h2 className="text-xl mb-4">
-            Witaj, {userInfo.firstName + " " + userInfo.lastName}!
+            Witaj, {userInfos.firstName + " " + userInfos.lastName}!
           </h2>
         ) : null}
         {message && (
@@ -59,22 +63,26 @@ export default function DashboardPage() {
                 <strong>Email:</strong>
                 <br /> {currentUser.email}
               </p>
-              {userInfo ? (
+              {userInfos ? (
                 <>
                   <p className="py-1.5">
                     <strong>Imię:</strong> <br />
-                    {userInfo.firstName}
+                    {userInfos.firstName}
                   </p>
                   <p className="py-1.5">
                     <strong>Nazwisko:</strong> <br />
-                    {userInfo.lastName}
+                    {userInfos.lastName}
                   </p>
                   <p className="py-1.5">
                     <strong>Drużyna:</strong>
-                    <br /> {userInfo.teamName || "Brak"}
+                    <br />
+
+                    {teamName || "Brak"}
                   </p>
                 </>
-              ) : null}
+              ) : (
+                <Spinner />
+              )}
             </div>
             <button
               className="bg-fourth hover:bg-third text-white mt-3 py-1 px-2 rounded"

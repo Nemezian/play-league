@@ -11,13 +11,10 @@ import {
 export default function Nav() {
   const [nav, setNav] = useState(false)
   const { currentUser, logout, getUserRole, userInfos } = useAuth()
-  const [userRole, setUserRole] = useState("")
   const navigate = useNavigate()
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [error, setError] = useState("")
 
-  // console.log("userinfo:", userInfos)
-  // console.log("userinfo role :", userInfos.role)
   useEffect(() => {
     // Add logic here to handle user login/logout
     // For example, you can update the navbar state based on the currentUser value
@@ -61,7 +58,7 @@ export default function Nav() {
           Strona główna
         </NavLink>
 
-        {currentUser && (
+        {currentUser && userInfos && (
           <div className="relative">
             <button
               className="flex items-center p-3 whitespace-nowrap hover:text-gray-400"
@@ -76,27 +73,36 @@ export default function Nav() {
             </button>
             {dropdownOpen && (
               <div className="block absolute items-center justify-center -left-1 w-[150px] z-[49] mt-1 bg-fourth rounded-md">
-                <NavLink
-                  className="block p-2 hover:bg-gray-100"
-                  to="/team-management"
-                  onClick={() => setDropdownOpen(false)}
-                >
-                  Zarządzaj drużyną
-                </NavLink>
-                <NavLink
-                  className="block p-2 hover:bg-gray-100"
-                  to="/team-creation"
-                  onClick={() => setDropdownOpen(false)}
-                >
-                  Stwórz drużynę
-                </NavLink>
-                <NavLink
-                  className="block p-2 hover:bg-gray-100"
-                  to="/team-join"
-                  onClick={() => setDropdownOpen(false)}
-                >
-                  Dołącz do drużyny
-                </NavLink>
+                {(userInfos.role === "captain" ||
+                  userInfos.role === "administrator") && (
+                  <NavLink
+                    className="block p-2 hover:bg-third"
+                    to="/team-management"
+                    onClick={() => setDropdownOpen(false)}
+                  >
+                    Zarządzaj drużyną
+                  </NavLink>
+                )}
+                {(userInfos.role === "player" ||
+                  userInfos.role === "administrator") && (
+                  <NavLink
+                    className="block p-2 hover:bg-third"
+                    to="/team-creation"
+                    onClick={() => setDropdownOpen(false)}
+                  >
+                    Stwórz drużynę
+                  </NavLink>
+                )}
+                {(userInfos.role === "player" ||
+                  userInfos.role === "administrator") && (
+                  <NavLink
+                    className="block p-2 hover:bg-third"
+                    to="/team-join"
+                    onClick={() => setDropdownOpen(false)}
+                  >
+                    Dołącz do drużyny
+                  </NavLink>
+                )}
               </div>
             )}
           </div>
@@ -157,14 +163,37 @@ export default function Nav() {
         >
           Strona główna
         </NavLink>
-        {currentUser ? (
-          <NavLink
-            className="block p-3 border-b border-secondary hover:bg-secondary"
-            to="/team-creation"
-          >
-            Stwórz drużynę
-          </NavLink>
-        ) : null}
+        {currentUser && userInfos && (
+          <>
+            {(userInfos.role === "captain" ||
+              userInfos.role === "administrator") && (
+              <NavLink
+                className="block p-3 border-b border-secondary hover:bg-secondary"
+                to="/team-management"
+              >
+                Zarządzaj drużyną
+              </NavLink>
+            )}
+            {(userInfos.role === "player" ||
+              userInfos.role === "administrator") && (
+              <NavLink
+                className="block p-3 border-b border-secondary hover:bg-secondary"
+                to="/team-creation"
+              >
+                Stwórz drużynę
+              </NavLink>
+            )}
+            {(userInfos.role === "player" ||
+              userInfos.role === "administrator") && (
+              <NavLink
+                className="block p-3 border-b border-secondary hover:bg-secondary"
+                to="/team-join"
+              >
+                Dołącz do drużyny
+              </NavLink>
+            )}
+          </>
+        )}
         {currentUser ? (
           <NavLink
             className="block p-3 border-b border-secondary hover:bg-secondary"

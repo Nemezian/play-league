@@ -1,19 +1,19 @@
-import { useEffect, useState } from "react"
 import { Navigate } from "react-router-dom"
 import { useAuth } from "../contexts/AuthContext"
+import Spinner from "./Spinner"
 
 export default function PrivateRoute({ children, allowedRoles, navigateTo }) {
-  const { currentUser, getUserInfo } = useAuth()
-  const [userRole, setUserRole] = useState("")
+  const { currentUser, userInfos } = useAuth()
 
-  useEffect(() => {
-    if (!currentUser) return
-    getUserInfo(currentUser.uid).then((userInfo) => {
-      setUserRole(userInfo.role)
-    })
-  }, [currentUser])
+  if (!currentUser) {
+    return <Navigate to={"/login"} />
+  }
 
-  const hasAllowedRole = currentUser && allowedRoles?.includes(userRole)
+  if (!userInfos) {
+    return <Spinner />
+  }
+
+  const hasAllowedRole = currentUser && allowedRoles?.includes(userInfos.role)
 
   return (allowedRoles ? hasAllowedRole : currentUser) ? (
     children

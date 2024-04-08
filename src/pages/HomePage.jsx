@@ -1,5 +1,3 @@
-import { Footer, Nav } from "../components"
-
 export default function HomePage() {
   return (
     <>

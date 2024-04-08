@@ -17,43 +17,13 @@ export default function TeamCreation() {
   const [message, setMessage] = useState("")
   const [leagues, setLeagues] = useState([])
   const [selectedLeague, setSelectedLeague] = useState("")
-  const [isPlayer, setIsPlayer] = useState(false)
-  const [isCaptain, setIsCaptain] = useState(false)
-  const { createTeam, getLeagues, currentUser, getUserInfo } = useAuth()
+  const { createTeam, getLeagues, userInfos } = useAuth()
   const nameRef = useRef()
+  const teamCodeRef = useRef()
   const descriptionRef = useRef()
 
   const fixedInputClass =
     "rounded-lg appearance-none  mb-2 block w-full p-1.5 md:p-2.5 px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-fourth focus:border-fourth focus:z-10 sm:text-sm"
-
-  //   return (
-  //     <div>
-  //       <h1 className="text-2xl font-bold text-white">Stwórz drużynę</h1>
-  //       <form className="mt-4">
-  //         <div className="flex flex-col space-y-2">
-  //           <label htmlFor="team-name" className="text-white">
-  //             Nazwa drużyny
-  //           </label>
-  //           <input
-  //             type="text"
-  //             id="team-name"
-  //             className="p-2 bg-gray-500/[.8] rounded-lg"
-  //           />
-  //         </div>
-  //         <div className="flex flex-col space-y-2 mt-4">
-  //           <label htmlFor="team-description" className="text-white">
-  //             Opis drużyny
-  //           </label>
-  //           <textarea
-  //             id="team-description"
-  //             className="p-2 bg-gray-500/[.8] rounded-lg"
-  //           />
-  //         </div>
-
-  //         <FormAction text="Stwórz drużynę" />
-  //       </form>
-  //     </div>
-  //   )
 
   useEffect(() => {
     // Fetch leagues from Firestore
@@ -67,16 +37,6 @@ export default function TeamCreation() {
       })
   }, [])
 
-  useEffect(() => {
-    {
-      getUserInfo(currentUser.uid).then((userInfo) => {
-        console.log("User info fetched", userInfo)
-        setIsPlayer(userInfo.role === "player")
-        setIsCaptain(userInfo.role === "captain")
-      })
-    }
-  })
-
   async function handleSubmit(e) {
     e.preventDefault()
 
@@ -88,12 +48,7 @@ export default function TeamCreation() {
       setLoading(false)
       return
     }
-    if (isCaptain) {
-      setError("Jesteś już kapitanem swojej drużyny!")
-      setLoading(false)
-      return
-    }
-    if (isPlayer) {
+    if (userInfos.role === "member") {
       setError("Jesteś już członkiem drużyny!")
       setLoading(false)
       return
@@ -102,10 +57,10 @@ export default function TeamCreation() {
     createTeam(
       nameRef.current.value.trim(),
       descriptionRef.current.value.trim(),
-      selectedLeague
+      selectedLeague,
+      teamCodeRef.current.value.trim()
     )
       .then(() => {
-        // navigate("/")
         setMessage("Drużyna została stworzona")
       })
       .catch((e) => {
@@ -138,22 +93,62 @@ export default function TeamCreation() {
         </Alert>
       )}
       <form onSubmit={handleSubmit}>
-        <Input
-          key={"team-name"}
-          handleChange={handleChange}
-          value={changeState["team-name"]}
-          labelText={"Nazwa drużyny"}
-          labelFor={"team-name"}
-          id={"team-name"}
-          name={"team-name"}
-          type={"text"}
-          autoComplete={"false"}
-          isRequired={true}
-          ref={nameRef}
-          placeholder={"Nazwa drużyny"}
-        />
+        {fields.map((field) => (
+          // <Input
+          //   key={"team-name"}
+          //   handleChange={handleChange}
+          //   value={changeState["team-name"]}
+          //   labelText={"Nazwa drużyny"}
+          //   labelFor={"team-name"}
+          //   id={"team-name"}
+          //   name={"team-name"}
+          //   type={"text"}
+          //   autoComplete={"false"}
+          //   isRequired={true}
+          //   ref={nameRef}
+          //   placeholder={"Nazwa drużyny"}
+          // />
+          // <Input
+          //   key={"team-code"}
+          //   handleChange={handleChange}
+          //   value={changeState["team-code"]}
+          //   labelText={"Nazwa drużyny"}
+          //   labelFor={"team-name"}
+          //   id={"team-name"}
+          //   name={"team-name"}
+          //   type={"text"}
+          //   autoComplete={"false"}
+          //   isRequired={true}
+          //   ref={teamCodeRef}
+          //   placeholder={"Nazwa drużyny"}
+          // />
+          <Input
+            key={field.id}
+            handleChange={handleChange}
+            value={changeState[field.id]}
+            labelText={field.labelText}
+            labelFor={field.labelFor}
+            id={field.id}
+            name={field.name}
+            type={field.type}
+            autoComplete={field.autoComplete}
+            customClass={field.customClass}
+            isRequired={field.isRequired}
+            ref={
+              field.id === "team-name"
+                ? nameRef
+                : field.id === "team-code"
+                  ? teamCodeRef
+                  : null
+            }
+            placeholder={field.placeholder}
+          />
+        ))}
         <div>
-          <label htmlFor="choose-league" className="text-white">
+          <label
+            htmlFor="choose-league"
+            className="block mb-2 text-xs font-medium text-white"
+          >
             Wybierz ligę
           </label>
           <select
@@ -171,9 +166,12 @@ export default function TeamCreation() {
             ))}
           </select>
         </div>
-        <div className="flex flex-col space-y-2 mt-4">
-          <label htmlFor="team-description" className="flex text-white">
-            Opis drużyny<p className="font-thin">(opcjonalnie)</p>
+        <div>
+          <label
+            htmlFor="team-description"
+            className="flex mb-2 text-xs font-medium text-white"
+          >
+            Opis drużyny<p className="font-thin block">(opcjonalnie)</p>
           </label>
           <textarea
             id="team-description"

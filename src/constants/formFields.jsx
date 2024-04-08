@@ -132,14 +132,14 @@ const teamCreationFields = [
     placeholder: "Nazwa drużyny",
   },
   {
-    labelText: "Opis drużyny",
-    labelFor: "team-description",
-    id: "team-description",
-    name: "team-description",
-    type: "longText",
+    labelText: "Kod dołączenia",
+    labelFor: "team-code",
+    id: "team-code",
+    name: "team-code",
+    type: "text",
     autoComplete: "false",
-    isRequired: false,
-    placeholder: "Opis drużyny",
+    isRequired: true,
+    placeholder: "Wprowadź kod dołączenia do drużyny",
   },
 ]
 

@@ -13,6 +13,8 @@ import Alert from "./Alert"
 import TeamCreation from "./TeamCreation"
 import TeamJoin from "./TeamJoin"
 import TeamManagement from "./TeamManagement.jsx"
+import Spinner from "./Spinner.jsx"
+import ListTeams from "./ListTeams.jsx"
 
 export {
   Alert,
@@ -30,4 +32,6 @@ export {
   TeamCreation,
   TeamJoin,
   TeamManagement,
+  Spinner,
+  ListTeams,
 }

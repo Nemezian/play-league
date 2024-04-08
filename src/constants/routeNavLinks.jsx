@@ -26,7 +26,7 @@ const routes = [
   {
     path: "/team-creation",
     element: (
-      <PrivateRoute allowedRoles={["administrator", "user"]} navigateTo={"/"}>
+      <PrivateRoute allowedRoles={["administrator", "player"]} navigateTo={"/"}>
         <TeamCreationPage />
       </PrivateRoute>
     ),
@@ -36,7 +36,7 @@ const routes = [
     element: (
       <PrivateRoute
         allowedRoles={["administrator", "captain"]}
-        navigateTo={"/"}
+        // navigateTo={"/"}
       >
         <TeamManagementPage />
       </PrivateRoute>
@@ -45,7 +45,7 @@ const routes = [
   {
     path: "/team-join",
     element: (
-      <PrivateRoute allowedRoles={["administrator", "user"]} navigateTo={"/"}>
+      <PrivateRoute allowedRoles={["administrator", "player"]} navigateTo={"/"}>
         <TeamJoinPage />
       </PrivateRoute>
     ),

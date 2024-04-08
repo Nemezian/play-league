@@ -33,6 +33,7 @@ export function useFirebaseAuth() {
           firstName,
           lastName,
           role: "player",
+          teamId: null,
           createdAt: new Date(),
           updatedAt: new Date(),
         }
@@ -83,28 +84,6 @@ export function useFirebaseAuth() {
     }
   }
 
-  const getUserRole = async (userId) => {
-    const docRef = doc(firestore, "users", userId)
-    const mySnapshot = await getDoc(docRef)
-    if (mySnapshot.exists()) {
-      const docData = mySnapshot.data()
-      console.log("Document data: ", docData)
-      return docData.role
-    } else {
-      console.log("No such document!")
-      return null
-    }
-  }
-
-  const getLeagues = async () => {
-    const querySnapshot = await getDocs(collection(firestore, "leagues"))
-    const fetchedLeagues = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }))
-    return fetchedLeagues
-  }
-
   const createLeague = async (leagueName, leagueDescription) => {
     const ref = doc(firestore, "leagues")
     const docData = {
@@ -122,25 +101,85 @@ export function useFirebaseAuth() {
       })
   }
 
-  const createTeam = async (teamName, teamDescription, leagueId) => {
-    const ref = collection(firestore, "leagues", leagueId, "teams")
-    console.log("createTeam: ", ref)
+  // Fetching all leagues for the user to choose from select box @TeamCreation
+  const getLeagues = async () => {
+    const querySnapshot = await getDocs(collection(firestore, "leagues"))
+    const fetchedLeagues = querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }))
+    return fetchedLeagues
+  }
+
+  const getMemberTeamNameFromReference = async (teamDocRef) => {
+    const mySnapshot = await getDoc(teamDocRef)
+    if (mySnapshot.exists()) {
+      const docData = mySnapshot.data()
+      console.log("Document data: ", docData)
+      return docData
+    } else {
+      console.log("No such document!")
+      return null
+    }
+  }
+
+  const updateUserToCaptain = async (teamRefId, leagueId) => {
+    const docRef = doc(firestore, "users", currentUser.uid)
     const docData = {
-      teamName,
-      teamDescription,
-      captain: doc(firestore, "users", currentUser.uid),
-      players: [],
-      createdAt: new Date(),
+      role: "captain",
+      teamId: doc(firestore, "leagues", leagueId, "teams", teamRefId),
       updatedAt: new Date(),
     }
-    console.log("createTeamData: ", docData)
-    await addDoc(ref, docData)
+    await setDoc(docRef, docData, { merge: true })
       .then(() => {
         console.log("Document successfully written!")
       })
       .catch((error) => {
         console.error("Error adding document: ", error)
       })
+  }
+
+  const createTeam = async (
+    teamName,
+    teamDescription,
+    leagueId,
+    joinPassword
+  ) => {
+    const teamColRef = collection(firestore, "leagues", leagueId, "teams")
+
+    const docData = {
+      teamName,
+      teamDescription,
+      joinPassword: joinPassword,
+      captain: doc(firestore, "users", currentUser.uid),
+      players: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }
+    await addDoc(teamColRef, docData)
+      .then((result) => {
+        updateUserToCaptain(result.id, leagueId)
+        console.log("Document successfully written!")
+      })
+      .catch((error) => {
+        console.error("Error adding document: ", error)
+      })
+  }
+
+  const getTeamsByLeagueId = async (leagueId, searchQuery = "") => {
+    const querySnapshot = await getDocs(
+      collection(firestore, "leagues", leagueId, "teams")
+    )
+    const fetchedTeams = querySnapshot.docs
+      .map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }))
+      .filter((team) =>
+        team.teamName?.toLowerCase()?.includes(searchQuery.toLowerCase())
+      )
+
+    return fetchedTeams
   }
 
   useEffect(() => {
@@ -161,17 +200,18 @@ export function useFirebaseAuth() {
   return {
     currentUser,
     loading,
+    userInfos,
     signup,
     login,
     logout,
     resetPassword,
     updateEmail,
     updatePassword,
-    getUserInfo,
     getLeagues,
     createLeague,
     createTeam,
-    getUserRole,
-    userInfos,
+    getMemberTeamNameFromReference,
+    updateUserToCaptain,
+    getTeamsByLeagueId,
   }
 }
