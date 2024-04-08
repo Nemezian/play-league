@@ -30,7 +30,7 @@ export default function DashboardPage() {
   }
 
   useEffect(() => {
-    if (userInfos) {
+    if (userInfos && userInfos.teamId) {
       getMemberTeamNameFromReference(userInfos.teamId)
         .then((result) => {
           setTeamName(result.teamName)

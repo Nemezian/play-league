@@ -100,9 +100,7 @@ export default function TeamJoin() {
           placeholder={"Wyszukaj drużynę"}
           customClass={"h-8"}
         />
-        <button onClick={handleSearch} type="button">
-          <AiOutlineSearch size={25} />
-        </button>
+          <AiOutlineSearch size={25} className="absolute left-3/4 text-fourth"/>
       </div>
 
       <div>
