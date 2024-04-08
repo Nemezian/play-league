@@ -166,6 +166,48 @@ export function useFirebaseAuth() {
       })
   }
 
+  const joinTeam = async (team, joinPasswordFromForm) => {
+    const docRef = doc(
+      firestore,
+      "leagues",
+      team.leagueId,
+      "teams",
+      team.teamId
+    )
+    const mySnapshot = await getDoc(docRef)
+    if (mySnapshot.exists()) {
+      const docData = mySnapshot.data()
+      if (docData.joinPassword === joinPasswordFromForm) {
+        const userRef = doc(firestore, "users", currentUser.uid)
+        const userDocData = {
+          role: "member",
+          teamId: doc(firestore, "leagues", leagueId, "teams", teamId),
+          updatedAt: new Date(),
+        }
+        await setDoc(userRef, userDocData, { merge: true })
+          .then(() => {
+            console.log("Document successfully written!")
+          })
+          .catch((error) => {
+            console.error("Error adding document: ", error)
+          })
+
+        const teamDocRef = doc(firestore, "leagues", leagueId, "teams", teamId)
+        const teamDocData = {
+          players: [...docData.players, userRef],
+          updatedAt: new Date(),
+        }
+        await setDoc(teamDocRef, teamDocData, { merge: true })
+          .then(() => {
+            console.log("Document successfully written!")
+          })
+          .catch((error) => {
+            console.error("Error adding document: ", error)
+          })
+      }
+    }
+  }
+
   const getTeamsByLeagueId = async (leagueId, searchQuery = "") => {
     const querySnapshot = await getDocs(
       collection(firestore, "leagues", leagueId, "teams")
@@ -213,5 +255,6 @@ export function useFirebaseAuth() {
     getMemberTeamNameFromReference,
     updateUserToCaptain,
     getTeamsByLeagueId,
+    joinTeam,
   }
 }

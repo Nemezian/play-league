@@ -1,6 +1,5 @@
 import { useRef, useState, useEffect } from "react"
 import Input from "./Input"
-import FormAction from "./FormAction"
 import ListTeams from "./ListTeams"
 import { AiOutlineSearch } from "react-icons/ai"
 import { useAuth } from "../contexts/AuthContext"
@@ -8,13 +7,11 @@ import { useAuth } from "../contexts/AuthContext"
 export default function TeamJoin() {
   const [searchState, setSearchState] = useState("")
   const { getLeagues, getTeamsByLeagueId } = useAuth()
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState("")
-  const [message, setMessage] = useState("")
   const [leagues, setLeagues] = useState([])
   const [selectedLeague, setSelectedLeague] = useState("")
   const [teams, setTeams] = useState([])
   const [filteredTeams, setFilteredTeams] = useState([]) // State to store filtered teams
+
   const searchTeamRef = useRef()
 
   const fixedInputClass =
@@ -30,21 +27,6 @@ export default function TeamJoin() {
 
     if (e.target.value !== "") {
       getTeamsByLeagueId(e.target.value, searchState)
-        .then((teams) => {
-          console.log("Teams fetched", teams)
-          setTeams(teams)
-          setFilteredTeams(teams)
-        })
-        .catch((e) => {
-          console.error("An error occurred while fetching teams", e)
-        })
-    }
-  }
-
-  const handleSearch = () => {
-    // Fetch teams based on selected league and search query
-    if (selectedLeague !== "") {
-      getTeamsByLeagueId(selectedLeague, searchState)
         .then((teams) => {
           console.log("Teams fetched", teams)
           setTeams(teams)
@@ -100,7 +82,7 @@ export default function TeamJoin() {
           placeholder={"Wyszukaj drużynę"}
           customClass={"h-8"}
         />
-          <AiOutlineSearch size={25} className="absolute left-3/4 text-fourth"/>
+        <AiOutlineSearch size={25} className="absolute left-3/4 text-fourth" />
       </div>
 
       <div>
