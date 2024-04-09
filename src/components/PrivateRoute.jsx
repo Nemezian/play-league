@@ -3,13 +3,16 @@ import { useAuth } from "../contexts/AuthContext"
 import Spinner from "./Spinner"
 
 export default function PrivateRoute({ children, allowedRoles, navigateTo }) {
-  const { currentUser, userInfos } = useAuth()
+  const { currentUser, userInfos, userInfoLoading } = useAuth()
 
   if (!currentUser) {
     return <Navigate to={"/login"} />
   }
 
-  if (!userInfos) {
+  // if (!userInfos) {
+  //   return <Spinner />
+  // }
+  if (userInfoLoading) {
     return <Spinner />
   }
 

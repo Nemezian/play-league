@@ -16,8 +16,7 @@ export default function Nav() {
   const [error, setError] = useState("")
 
   useEffect(() => {
-    // Add logic here to handle user login/logout
-    // For example, you can update the navbar state based on the currentUser value
+    setDropdownOpen(false)
     setNav(false) // Reset the navbar state on login/logout
   }, [currentUser])
 

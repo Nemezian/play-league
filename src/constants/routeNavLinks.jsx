@@ -8,6 +8,8 @@ import {
   TeamCreationPage,
   TeamJoinPage,
   TeamManagementPage,
+  TeamDashboardPage,
+  PageNotFound,
 } from "../pages"
 
 const routes = [
@@ -50,7 +52,15 @@ const routes = [
       </PrivateRoute>
     ),
   },
-  // { path: "*", element: <PageNotFound /> },
+  {
+    path: "/team/:teamId",
+    element: (
+      <PrivateRoute>
+        <TeamDashboardPage />
+      </PrivateRoute>
+    ),
+  },
+  { path: "*", element: <PageNotFound /> },
 ]
 
 export { routes }

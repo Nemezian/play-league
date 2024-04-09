@@ -22,6 +22,7 @@ export function useFirebaseAuth() {
   const [currentUser, setCurrentUser] = useState()
   const [userInfos, setUserInfos] = useState()
   const [loading, setLoading] = useState(true)
+  const [userInfoLoading, setUserInfoLoading] = useState(true)
 
   const signup = (email, password, firstName, lastName) =>
     createUserWithEmailAndPassword(auth, email, password).then(
@@ -72,6 +73,7 @@ export function useFirebaseAuth() {
     })
 
   const getUserInfo = async (userId) => {
+    setUserInfoLoading(true)
     const docRef = doc(firestore, "users", userId)
     const mySnapshot = await getDoc(docRef)
     if (mySnapshot.exists()) {
@@ -167,14 +169,17 @@ export function useFirebaseAuth() {
   }
 
   const joinTeam = async (team, joinPasswordFromForm, leagueId) => {
-    console.log("team", team, "teamid", team.id, "joinPassword", joinPasswordFromForm, "leagueId", leagueId)
-    const docRef = doc(
-      firestore,
-      "leagues",
-      leagueId,
-      "teams",
-      team.id
+    console.log(
+      "team",
+      team,
+      "teamid",
+      team.id,
+      "joinPassword",
+      joinPasswordFromForm,
+      "leagueId",
+      leagueId
     )
+    const docRef = doc(firestore, "leagues", leagueId, "teams", team.id)
     const mySnapshot = await getDoc(docRef)
     if (mySnapshot.exists()) {
       const docData = mySnapshot.data()
@@ -189,6 +194,10 @@ export function useFirebaseAuth() {
         await setDoc(userRef, userDocData, { merge: true })
           .then(() => {
             console.log("Document successfully written!")
+            getUserInfo(currentUser.uid).then(
+              (info) => setUserInfos(info),
+              setUserInfoLoading(false)
+            )
           })
           .catch((error) => {
             console.error("Error adding document: ", error)
@@ -237,7 +246,10 @@ export function useFirebaseAuth() {
 
   useEffect(() => {
     if (currentUser && currentUser.uid) {
-      getUserInfo(currentUser.uid).then((info) => setUserInfos(info))
+      getUserInfo(currentUser.uid).then(
+        (info) => setUserInfos(info),
+        setUserInfoLoading(false)
+      )
     }
   }, [currentUser])
 
@@ -245,6 +257,7 @@ export function useFirebaseAuth() {
     currentUser,
     loading,
     userInfos,
+    userInfoLoading,
     signup,
     login,
     logout,
