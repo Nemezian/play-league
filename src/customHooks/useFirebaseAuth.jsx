@@ -166,22 +166,24 @@ export function useFirebaseAuth() {
       })
   }
 
-  const joinTeam = async (team, joinPasswordFromForm) => {
+  const joinTeam = async (team, joinPasswordFromForm, leagueId) => {
+    console.log("team", team, "teamid", team.id, "joinPassword", joinPasswordFromForm, "leagueId", leagueId)
     const docRef = doc(
       firestore,
       "leagues",
-      team.leagueId,
+      leagueId,
       "teams",
-      team.teamId
+      team.id
     )
     const mySnapshot = await getDoc(docRef)
     if (mySnapshot.exists()) {
       const docData = mySnapshot.data()
       if (docData.joinPassword === joinPasswordFromForm) {
         const userRef = doc(firestore, "users", currentUser.uid)
+        console.log("Document data: ", docData, "Docdata id:", team.id)
         const userDocData = {
           role: "member",
-          teamId: doc(firestore, "leagues", leagueId, "teams", teamId),
+          teamId: doc(firestore, "leagues", leagueId, "teams", team.id),
           updatedAt: new Date(),
         }
         await setDoc(userRef, userDocData, { merge: true })
@@ -192,7 +194,7 @@ export function useFirebaseAuth() {
             console.error("Error adding document: ", error)
           })
 
-        const teamDocRef = doc(firestore, "leagues", leagueId, "teams", teamId)
+        const teamDocRef = doc(firestore, "leagues", leagueId, "teams", team.id)
         const teamDocData = {
           players: [...docData.players, userRef],
           updatedAt: new Date(),

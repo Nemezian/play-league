@@ -6,7 +6,7 @@ import Alert from "./Alert"
 import Input from "./Input"
 import FormAction from "./FormAction"
 
-export default function ListTeams({ teams }) {
+export default function ListTeams({ teams, leagueId }) {
   const { joinTeam } = useAuth()
   const [joinPassword, setJoinPassword] = useState("")
   const [error, setError] = useState("")
@@ -38,7 +38,7 @@ export default function ListTeams({ teams }) {
 
     console.log("Joining team", selectedTeam, joinPassword)
     if (selectedTeam) {
-      joinTeam(selectedTeam, joinPassword)
+      joinTeam(selectedTeam, joinPassword, leagueId)
         .then(() => {
           closeModal()
         })

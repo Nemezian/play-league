@@ -107,7 +107,7 @@ export default function TeamJoin() {
           ))}
         </select>
       </div>
-      <ListTeams teams={filteredTeams} />
+      <ListTeams teams={filteredTeams} leagueId={selectedLeague}/>
     </div>
   )
 }
