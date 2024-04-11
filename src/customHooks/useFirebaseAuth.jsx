@@ -86,6 +86,20 @@ export function useFirebaseAuth() {
     }
   }
 
+  const getMembersData = async (members) => {
+    const membersData = []
+    for (const member of members) {
+      const mySnapshot = await getDoc(member)
+      if (mySnapshot.exists()) {
+        const docData = mySnapshot.data()
+        membersData.push(docData)
+      } else {
+        console.log("No such document!")
+      }
+    }
+    return membersData
+  }
+
   const createLeague = async (leagueName, leagueDescription) => {
     const ref = doc(firestore, "leagues")
     const docData = {
@@ -220,7 +234,6 @@ export function useFirebaseAuth() {
   }
 
   const getTeamData = async (leagueId, teamId) => {
-
     const teamDocRef = doc(firestore, "leagues", leagueId, "teams", teamId)
     const mySnapshot = await getDoc(teamDocRef)
     if (mySnapshot.exists()) {
@@ -286,5 +299,6 @@ export function useFirebaseAuth() {
     getTeamsByLeagueId,
     joinTeam,
     getTeamData,
+    getMembersData,
   }
 }

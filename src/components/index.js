@@ -16,6 +16,7 @@ import TeamManagement from "./TeamManagement.jsx"
 import Spinner from "./Spinner.jsx"
 import ListTeams from "./ListTeams.jsx"
 import TeamDashboard from "./TeamDashboard.jsx"
+import MemberList from "./MemberList.jsx"
 
 export {
   Alert,
@@ -35,5 +36,6 @@ export {
   TeamManagement,
   Spinner,
   ListTeams,
-  TeamDashboard
+  TeamDashboard,
+  MemberList,
 }
