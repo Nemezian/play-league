@@ -53,7 +53,7 @@ const routes = [
     ),
   },
   {
-    path: "/team/:teamId",
+    path: "/team/:leagueId/:teamId",
     element: (
       <PrivateRoute>
         <TeamDashboardPage />

@@ -219,6 +219,20 @@ export function useFirebaseAuth() {
     }
   }
 
+  const getTeamData = async (leagueId, teamId) => {
+
+    const teamDocRef = doc(firestore, "leagues", leagueId, "teams", teamId)
+    const mySnapshot = await getDoc(teamDocRef)
+    if (mySnapshot.exists()) {
+      const docData = mySnapshot.data()
+      console.log("Document data: ", docData)
+      return docData
+    } else {
+      console.log("No such document!")
+      return null
+    }
+  }
+
   const getTeamsByLeagueId = async (leagueId, searchQuery = "") => {
     const querySnapshot = await getDocs(
       collection(firestore, "leagues", leagueId, "teams")
@@ -271,5 +285,6 @@ export function useFirebaseAuth() {
     updateUserToCaptain,
     getTeamsByLeagueId,
     joinTeam,
+    getTeamData,
   }
 }

@@ -1,48 +1,42 @@
-import React, { useState, useEffect } from "react"
+import { useState, useEffect } from "react"
 import { useParams } from "react-router-dom"
-import TeamDetails from "./TeamDetails"
-import MemberList from "./MemberList"
-import EventCalendar from "./EventCalendar"
-import TaskList from "./TaskList"
-import { getTeamData } from "../api/teamApi"
+// import TeamDetails from "./TeamDetails"
+// import MemberList from "./MemberList"
+import { useAuth } from "../contexts/AuthContext"
+import Spinner from "./Spinner"
+
 
 export default function TeamDashboard() {
-  const { teamId } = useParams()
+  const { leagueId, teamId } = useParams()
+  const { getTeamData } = useAuth()
   const [teamData, setTeamData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await getTeamData(teamId)
+
+    getTeamData(leagueId, teamId)
+      .then((data) => {
         setTeamData(data)
         setLoading(false)
-      } catch (error) {
-        setError(error.message)
+      })
+      .catch((error) => {
+        setError(error)
         setLoading(false)
-      }
+      })
+  }, [leagueId, teamId]);
+
+    if (loading) {
+      return <Spinner />
     }
-
-    fetchData()
-  }, [teamId])
-
-  //   if (loading) {
-  //     return <div>Loading...</div>
-  //   }
-
-  //   if (error) {
-  //     return <div>Error: {error}</div>
-  //   }
 
   return (
     <div>
-      <h1>Team Dashboard - {teamData.name}</h1>
+      <h1>Team Dashboard - {teamData.teamName}</h1>
       <div>
-        <TeamDetails team={teamData} />
-        <MemberList members={teamData.members} />
-        <EventCalendar events={teamData.events} />
-        <TaskList tasks={teamData.tasks} />
+      <p>Description: {teamData.teamDescription}</p>
+        {/* <TeamDetails team={teamData} />
+        <MemberList members={teamData.players} /> */}
       </div>
     </div>
   )
