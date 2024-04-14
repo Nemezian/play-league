@@ -86,6 +86,18 @@ export function useFirebaseAuth() {
     }
   }
 
+  const getUserInfoByReference = async (userRef) => {
+    const mySnapshot = await getDoc(userRef)
+    if (mySnapshot.exists()) {
+      const docData = mySnapshot.data()
+      console.log("Document data: ", docData)
+      return docData
+    } else {
+      console.log("No such document!")
+      return null
+    }
+  }
+
   const getMembersData = async (members) => {
     const membersData = []
     for (const member of members) {
@@ -300,5 +312,6 @@ export function useFirebaseAuth() {
     joinTeam,
     getTeamData,
     getMembersData,
+    getUserInfoByReference,
   }
 }

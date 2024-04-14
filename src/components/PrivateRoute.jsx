@@ -12,7 +12,7 @@ export default function PrivateRoute({ children, allowedRoles, navigateTo }) {
   // if (!userInfos) {
   //   return <Spinner />
   // }
-  if (userInfoLoading) {
+  if (userInfoLoading || !userInfos) {
     return <Spinner />
   }
 

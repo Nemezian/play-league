@@ -21,6 +21,7 @@ export default function TeamCreation() {
   const nameRef = useRef()
   const teamCodeRef = useRef()
   const descriptionRef = useRef()
+  const [preferredMatchDays, setPreferredMatchDays] = useState([])
 
   const fixedInputClass =
     "rounded-lg appearance-none  mb-2 block w-full p-1.5 md:p-2.5 px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-fourth focus:border-fourth focus:z-10 sm:text-sm"
@@ -182,6 +183,88 @@ export default function TeamCreation() {
             ref={descriptionRef}
             cols={30}
           ></textarea>
+        </div>
+        <div className="flex flex-col ">
+          <h1 className="mx-auto">Preferowane dni rozgrywek</h1>
+          <div className="grid grid-cols-2">
+            <div>
+              <input
+                type="checkbox"
+                id="monday"
+                value="monday"
+                onChange={(e) =>
+                  setPreferredMatchDays([...preferredMatchDays, e.target.value])
+                }
+              />
+              <label htmlFor="monday">Poniedziałek</label>
+            </div>
+            <div>
+              <input
+                type="checkbox"
+                id="tuesday"
+                value="tuesday"
+                onChange={(e) =>
+                  setPreferredMatchDays([...preferredMatchDays, e.target.value])
+                }
+              />
+              <label htmlFor="tuesday">Wtorek</label>
+            </div>
+            <div>
+              <input
+                type="checkbox"
+                id="wednesday"
+                value="wednesday"
+                onChange={(e) =>
+                  setPreferredMatchDays([...preferredMatchDays, e.target.value])
+                }
+              />
+              <label htmlFor="wednesday">Środa</label>
+            </div>
+            <div>
+              <input
+                type="checkbox"
+                id="thursday"
+                value="thursday"
+                onChange={(e) =>
+                  setPreferredMatchDays([...preferredMatchDays, e.target.value])
+                }
+              />
+              <label htmlFor="thursday">Czwartek</label>
+            </div>
+            <div>
+              <input
+                type="checkbox"
+                id="friday"
+                value="friday"
+                onChange={(e) =>
+                  setPreferredMatchDays([...preferredMatchDays, e.target.value])
+                }
+              />
+              <label htmlFor="friday">Piątek</label>
+            </div>
+            <div>
+              <input
+                type="checkbox"
+                id="saturday"
+                value="saturday"
+                onChange={(e) =>
+                  setPreferredMatchDays([...preferredMatchDays, e.target.value])
+                }
+              />
+              <label htmlFor="saturday">Sobota</label>
+            </div>
+            <div>
+              <input
+                type="checkbox"
+                id="sunday"
+                value="sunday"
+                onChange={(e) =>
+                  setPreferredMatchDays([...preferredMatchDays, e.target.value])
+                }
+              />
+              <label htmlFor="sunday">Niedziela</label>
+            </div>
+          </div>
         </div>
 
         <FormAction disabled={loading} text="Stwórz drużynę" />

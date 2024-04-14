@@ -7,7 +7,12 @@ import { AiOutlineClose } from "react-icons/ai"
 
 export default function DashboardPage() {
   const [message, setMessage] = useState("")
-  const { currentUser, userInfos, getMemberTeamNameFromReference } = useAuth()
+  const {
+    currentUser,
+    userInfos,
+    getMemberTeamNameFromReference,
+    userInfoLoading,
+  } = useAuth()
   const [modalIsOpen, setIsOpen] = useState(false)
   const [teamName, setTeamName] = useState("")
 
@@ -39,7 +44,7 @@ export default function DashboardPage() {
           console.error("An error occurred while fetching team name", e)
         })
     }
-  }, [userInfos])
+  }, [userInfos, userInfoLoading])
 
   return (
     <>

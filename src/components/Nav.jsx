@@ -10,15 +10,28 @@ import {
 
 export default function Nav() {
   const [nav, setNav] = useState(false)
-  const { currentUser, logout, getUserRole, userInfos } = useAuth()
+  const { currentUser, logout, userInfos } = useAuth()
   const navigate = useNavigate()
   const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [teamNavigation, setTeamNavigation] = useState("")
   const [error, setError] = useState("")
 
   useEffect(() => {
     setDropdownOpen(false)
     setNav(false) // Reset the navbar state on login/logout
   }, [currentUser])
+
+  useEffect(() => {
+    if (userInfos && userInfos.teamId) {
+      const teamRef = userInfos.teamId
+      const navigationPath = teamRef.path
+      const splittedPath = navigationPath.split("/")
+      const teamId = splittedPath[splittedPath.length - 1]
+      const leagueId = splittedPath[splittedPath.length - 3]
+
+      setTeamNavigation(`/team/${leagueId}/${teamId}`)
+    }
+  }, [userInfos])
 
   const handleNav = () => {
     setNav(!nav)
@@ -72,6 +85,17 @@ export default function Nav() {
             </button>
             {dropdownOpen && (
               <div className="block absolute items-center justify-center -left-1 w-[150px] z-[49] mt-1 bg-fourth rounded-md">
+                {(userInfos.role === "administrator" ||
+                  userInfos.role === "captain" ||
+                  userInfos.role === "member") && (
+                  <NavLink
+                    className="block p-2 hover:bg-third"
+                    to={teamNavigation}
+                    onClick={() => setDropdownOpen(false)}
+                  >
+                    Profil drużyny
+                  </NavLink>
+                )}
                 {(userInfos.role === "captain" ||
                   userInfos.role === "administrator") && (
                   <NavLink
@@ -148,12 +172,12 @@ export default function Nav() {
             : "fixed ease-in-out duration-500 left-[-100%]"
         }
       >
-        <div className="flex justify-between mr-3">
-          <h1 className=" text-2xl font-BlackopsOne text-fourth justify-start m-4 uppercase">
+        <div className="flex justify-between mx-4 my-6">
+          <h1 className="text-2xl font-BlackopsOne text-fourth m-4 uppercase">
             Play league
           </h1>
-          <button onClick={handleNav} className="block lg:hidden">
-            {nav ? <AiOutlineClose size={20} /> : <AiOutlineMenu size={20} />}
+          <button onClick={handleNav}>
+            <AiOutlineClose size={20} />
           </button>
         </div>
         <NavLink
@@ -164,6 +188,16 @@ export default function Nav() {
         </NavLink>
         {currentUser && userInfos && (
           <>
+            {(userInfos.role === "administrator" ||
+              userInfos.role === "captain" ||
+              userInfos.role === "member") && (
+              <NavLink
+                className="block p-3 border-b border-secondary hover:bg-secondary"
+                to={teamNavigation}
+              >
+                Profil drużyny
+              </NavLink>
+            )}
             {(userInfos.role === "captain" ||
               userInfos.role === "administrator") && (
               <NavLink

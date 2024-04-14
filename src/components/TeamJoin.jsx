@@ -3,6 +3,7 @@ import Input from "./Input"
 import ListTeams from "./ListTeams"
 import { AiOutlineSearch } from "react-icons/ai"
 import { useAuth } from "../contexts/AuthContext"
+import { render } from "react-dom"
 
 export default function TeamJoin() {
   const [searchState, setSearchState] = useState("")
@@ -10,6 +11,8 @@ export default function TeamJoin() {
   const [leagues, setLeagues] = useState([])
   const [selectedLeague, setSelectedLeague] = useState("")
   const [teams, setTeams] = useState([])
+  const [searchConditionCompleted, setSearchConditionCompleted] =
+    useState(false)
   const [filteredTeams, setFilteredTeams] = useState([]) // State to store filtered teams
 
   const searchTeamRef = useRef()
@@ -31,6 +34,7 @@ export default function TeamJoin() {
           console.log("Teams fetched", teams)
           setTeams(teams)
           setFilteredTeams(teams)
+          setSearchConditionCompleted(true)
         })
         .catch((e) => {
           console.error("An error occurred while fetching teams", e)
@@ -66,48 +70,59 @@ export default function TeamJoin() {
   }
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold text-white">Dołącz do drużyny</h1>
-      <div className="mt-4 flex justify-center items-center">
-        <Input
-          key={"search-team"}
-          handleChange={handleChange}
-          value={searchState}
-          id={"search-team"}
-          name={"search-team"}
-          type={"text"}
-          autoComplete={"false"}
-          isRequired={true}
-          ref={searchTeamRef}
-          placeholder={"Wyszukaj drużynę"}
-          customClass={"h-8"}
-        />
-        <AiOutlineSearch size={25} className="absolute left-3/4 text-fourth" />
-      </div>
-
+    <>
       <div>
-        <label
-          htmlFor="choose-league"
-          className="block mb-2 text-xs font-medium text-white"
-        >
-          Wybierz ligę
-        </label>
-        <select
-          id="choose-league"
-          value={selectedLeague}
-          onChange={handleLeagueChange}
-          name="choose-league"
-          className={fixedInputClass}
-        >
-          <option value="">-- Wybierz ligę --</option>
-          {leagues.map((league) => (
-            <option key={league.id} value={league.id}>
-              {league.leagueName}
-            </option>
-          ))}
-        </select>
+        <div className="flex justify-center items-center">
+          <h1 className="text-4xl font-bold text-white">Dołącz do drużyny</h1>
+        </div>
+        <div className="mt-4 flex justify-center items-center">
+          <Input
+            key={"search-team"}
+            handleChange={handleChange}
+            value={searchState}
+            id={"search-team"}
+            name={"search-team"}
+            type={"text"}
+            autoComplete={"false"}
+            isRequired={true}
+            ref={searchTeamRef}
+            placeholder={"Wyszukaj drużynę"}
+            customClass={"h-8"}
+          />
+          <AiOutlineSearch size={25} className=" text-fourth" />
+        </div>
+
+        <div>
+          <label
+            htmlFor="choose-league"
+            className="block mb-2 text-lg font-medium text-white"
+          >
+            Wybierz ligę
+          </label>
+
+          <select
+            id="choose-league"
+            value={selectedLeague}
+            onChange={handleLeagueChange}
+            name="choose-league"
+            className={fixedInputClass}
+          >
+            <option value="">-- Wybierz ligę --</option>
+            {leagues.map((league) => (
+              <option key={league.id} value={league.id}>
+                {league.leagueName}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
-      <ListTeams teams={filteredTeams} leagueId={selectedLeague}/>
-    </div>
+      <div className="flex justify-center items-center w-full">
+        {searchConditionCompleted && filteredTeams.length > 0 ? (
+          <ListTeams teams={filteredTeams} leagueId={selectedLeague} />
+        ) : searchConditionCompleted && filteredTeams.length === 0 ? (
+          <p>Brak drużyn spełniających kryteria</p>
+        ) : null}
+      </div>
+    </>
   )
 }

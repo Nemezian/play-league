@@ -2,16 +2,19 @@ import { useEffect, useState } from "react"
 import { useAuth } from "../contexts/AuthContext"
 import Spinner from "./Spinner"
 
-export default function MemberList({ members }) {
+export default function MemberList({
+  members,
+  divClassName = "",
+  listClassName = "",
+  itemsClassName = "",
+}) {
   const { getMembersData } = useAuth()
   const [membersData, setMembersData] = useState(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    console.log(members)
     getMembersData(members)
       .then((data) => {
-        console.log("data", data)
         setMembersData(data)
         setLoading(false)
       })
@@ -26,18 +29,15 @@ export default function MemberList({ members }) {
   }
 
   return (
-    <div className="h-10">
-      <h2>Lista członków: </h2>
+    <div className={divClassName}>
       {membersData && (
-        <div>
-          <ul className="">
-            {membersData.map((player, index) => (
-              <li key={index}>
-                {player.firstName} {player.lastName}
-              </li>
-            ))}
-          </ul>
-        </div>
+        <ul className={listClassName}>
+          {membersData.map((player, index) => (
+            <li key={index} className={itemsClassName}>
+              {player.firstName} {player.lastName}
+            </li>
+          ))}
+        </ul>
       )}
     </div>
   )
