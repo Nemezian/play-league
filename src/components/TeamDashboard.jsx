@@ -56,7 +56,15 @@ export default function TeamDashboard() {
                 Kapitan drużyny: {teamCaptain.firstName} {teamCaptain.lastName}
               </p>
             )}
-            <p className="pb-2">Opis: {teamData.teamDescription}</p>
+
+            <span className="pb-2">
+              Opis:{" "}
+              {teamData.teamDescription !== "" ? (
+                teamData.teamDescription
+              ) : (
+                <strong className="text-red-700 text-base">Brak</strong>
+              )}
+            </span>
           </div>
         )}
         <div className="bg-gray-500/[.2] p-6 rounded-lg shadow-md">

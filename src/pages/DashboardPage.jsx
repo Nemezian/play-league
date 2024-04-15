@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react"
-import { useNavigate } from "react-router-dom"
 import { useAuth } from "../contexts/AuthContext"
 import { PasswordChange, Alert, Spinner } from "../components"
 import ReactModal from "react-modal"

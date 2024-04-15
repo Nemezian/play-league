@@ -22,6 +22,15 @@ export default function TeamCreation() {
   const teamCodeRef = useRef()
   const descriptionRef = useRef()
   const [preferredMatchDays, setPreferredMatchDays] = useState([])
+  const weekDays = [
+    ["monday", "Poniedziałek"],
+    ["tuesday", "Wtorek"],
+    ["wednesday", "Środa"],
+    ["thursday", "Czwartek"],
+    ["friday", "Piątek"],
+    ["saturday", "Sobota"],
+    ["sunday", "Niedziela"],
+  ]
 
   const fixedInputClass =
     "rounded-lg appearance-none  mb-2 block w-full p-1.5 md:p-2.5 px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-fourth focus:border-fourth focus:z-10 sm:text-sm"
@@ -59,7 +68,8 @@ export default function TeamCreation() {
       nameRef.current.value.trim(),
       descriptionRef.current.value.trim(),
       selectedLeague,
-      teamCodeRef.current.value.trim()
+      teamCodeRef.current.value.trim(),
+      preferredMatchDays
     )
       .then(() => {
         setMessage("Drużyna została stworzona")
@@ -95,34 +105,6 @@ export default function TeamCreation() {
       )}
       <form onSubmit={handleSubmit}>
         {fields.map((field) => (
-          // <Input
-          //   key={"team-name"}
-          //   handleChange={handleChange}
-          //   value={changeState["team-name"]}
-          //   labelText={"Nazwa drużyny"}
-          //   labelFor={"team-name"}
-          //   id={"team-name"}
-          //   name={"team-name"}
-          //   type={"text"}
-          //   autoComplete={"false"}
-          //   isRequired={true}
-          //   ref={nameRef}
-          //   placeholder={"Nazwa drużyny"}
-          // />
-          // <Input
-          //   key={"team-code"}
-          //   handleChange={handleChange}
-          //   value={changeState["team-code"]}
-          //   labelText={"Nazwa drużyny"}
-          //   labelFor={"team-name"}
-          //   id={"team-name"}
-          //   name={"team-name"}
-          //   type={"text"}
-          //   autoComplete={"false"}
-          //   isRequired={true}
-          //   ref={teamCodeRef}
-          //   placeholder={"Nazwa drużyny"}
-          // />
           <Input
             key={field.id}
             handleChange={handleChange}
@@ -184,85 +166,31 @@ export default function TeamCreation() {
             cols={30}
           ></textarea>
         </div>
-        <div className="flex flex-col ">
-          <h1 className="mx-auto">Preferowane dni rozgrywek</h1>
-          <div className="grid grid-cols-2">
-            <div>
-              <input
-                type="checkbox"
-                id="monday"
-                value="monday"
-                onChange={(e) =>
-                  setPreferredMatchDays([...preferredMatchDays, e.target.value])
-                }
-              />
-              <label htmlFor="monday">Poniedziałek</label>
-            </div>
-            <div>
-              <input
-                type="checkbox"
-                id="tuesday"
-                value="tuesday"
-                onChange={(e) =>
-                  setPreferredMatchDays([...preferredMatchDays, e.target.value])
-                }
-              />
-              <label htmlFor="tuesday">Wtorek</label>
-            </div>
-            <div>
-              <input
-                type="checkbox"
-                id="wednesday"
-                value="wednesday"
-                onChange={(e) =>
-                  setPreferredMatchDays([...preferredMatchDays, e.target.value])
-                }
-              />
-              <label htmlFor="wednesday">Środa</label>
-            </div>
-            <div>
-              <input
-                type="checkbox"
-                id="thursday"
-                value="thursday"
-                onChange={(e) =>
-                  setPreferredMatchDays([...preferredMatchDays, e.target.value])
-                }
-              />
-              <label htmlFor="thursday">Czwartek</label>
-            </div>
-            <div>
-              <input
-                type="checkbox"
-                id="friday"
-                value="friday"
-                onChange={(e) =>
-                  setPreferredMatchDays([...preferredMatchDays, e.target.value])
-                }
-              />
-              <label htmlFor="friday">Piątek</label>
-            </div>
-            <div>
-              <input
-                type="checkbox"
-                id="saturday"
-                value="saturday"
-                onChange={(e) =>
-                  setPreferredMatchDays([...preferredMatchDays, e.target.value])
-                }
-              />
-              <label htmlFor="saturday">Sobota</label>
-            </div>
-            <div>
-              <input
-                type="checkbox"
-                id="sunday"
-                value="sunday"
-                onChange={(e) =>
-                  setPreferredMatchDays([...preferredMatchDays, e.target.value])
-                }
-              />
-              <label htmlFor="sunday">Niedziela</label>
+        <div className="flex flex-col">
+          <h1 className="mx-auto">
+            Preferowane dni rozgrywek(pozostaw puste, jeśli brak)
+          </h1>
+          <div className="flex justify-center">
+            <div className="grid grid-cols-2 w-full max-w-sm">
+              {weekDays.map((day) => (
+                <div key={day[0]} className="ml-14">
+                  <input
+                    type="checkbox"
+                    className="mr-1 h-4 w-4 text-fourth focus:ring-third border-gray-300 rounded"
+                    id={day[0]}
+                    value={day[0]}
+                    onChange={(e) =>
+                      setPreferredMatchDays([
+                        ...preferredMatchDays,
+                        e.target.value,
+                      ])
+                    }
+                  />
+                  <label className="text-sm text-white" htmlFor={day[0]}>
+                    {day[1]}
+                  </label>
+                </div>
+              ))}
             </div>
           </div>
         </div>

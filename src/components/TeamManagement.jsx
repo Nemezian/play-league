@@ -1,11 +1,53 @@
 import { useEffect, useState } from "react"
 import { useAuth } from "../contexts/AuthContext"
+import { useNavigate } from "react-router-dom"
+import Spinner from "./Spinner"
 
 export default function TeamManagement() {
+  const [teamData, setTeamData] = useState(null)
+  const { getTeamDataByReference, userInfos, userInfoLoading, deleteTeam } =
+    useAuth()
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const navigate = useNavigate()
+
+  if (userInfoLoading) {
+    return <Spinner />
+  }
+
+  useEffect(() => {
+    if (!userInfoLoading) {
+      getTeamDataByReference(userInfos.teamId)
+        .then((data) => {
+          setTeamData(data)
+          setLoading(false)
+        })
+        .catch((error) => {
+          setError(error)
+          setLoading(false)
+        })
+    }
+  }, [userInfos, userInfoLoading])
+
+  const handleDeleteTeam = () => {
+    setError("")
+
+    deleteTeam(userInfos.teamId)
+      .then(() => navigate("/"))
+      .catch(() => setError("Błąd podczas usuwania drużyny"))
+  }
+
   return (
     <div>
       <h1 className="text-2xl font-bold text-white">Zarządzaj drużyną</h1>
       <div className="mt-4">
+        <button
+          type="button"
+          className="bg-red-500 hover:bg-red-700 text-white py-2 px-2 rounded-lg"
+          onClick={() => handleDeleteTeam}
+        >
+          Usuń drużynę
+        </button>
         <div className="flex items-center space-x-2">
           <label htmlFor="team-name" className="text-white">
             Nazwa drużyny

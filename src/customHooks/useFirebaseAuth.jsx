@@ -16,7 +16,9 @@ import {
   collection,
   getDocs,
   addDoc,
+  deleteDoc,
 } from "firebase/firestore"
+import { get } from "firebase/database"
 
 export function useFirebaseAuth() {
   const [currentUser, setCurrentUser] = useState()
@@ -167,11 +169,39 @@ export function useFirebaseAuth() {
       })
   }
 
+  const updateUserRolesAfterTeamDelete = async (teamRefId) => {
+    const userColRef = collection(firestore, "users")
+    const querySnapshot = await getDocs(userColRef)
+    querySnapshot.docs.forEach(async (doc) => {
+      const docData = doc.data()
+      if (docData.teamId === teamRefId) {
+        const userRef = doc(firestore, "users", doc.id)
+        const docData = {
+          role: "player",
+          teamId: null,
+          updatedAt: new Date(),
+        }
+        await setDoc(userRef, docData, { merge: true })
+          .then(() => {
+            getUserInfo(currentUser.uid).then(
+              (info) => setUserInfos(info),
+              setUserInfoLoading(false)
+            )
+            console.log("User roles successfully updated!")
+          })
+          .catch((error) => {
+            console.error("Error while updating user roles: ", error)
+          })
+      }
+    })
+  }
+
   const createTeam = async (
     teamName,
     teamDescription,
     leagueId,
-    joinPassword
+    joinPassword,
+    preferredMatchDays
   ) => {
     const teamColRef = collection(firestore, "leagues", leagueId, "teams")
 
@@ -181,12 +211,18 @@ export function useFirebaseAuth() {
       joinPassword: joinPassword,
       captain: doc(firestore, "users", currentUser.uid),
       players: [],
+      preferredMatchDays: preferredMatchDays,
       createdAt: new Date(),
       updatedAt: new Date(),
     }
     await addDoc(teamColRef, docData)
       .then((result) => {
         updateUserToCaptain(result.id, leagueId)
+        getUserInfo(currentUser.uid).then(
+          (info) => setUserInfos(info),
+          setUserInfoLoading(false)
+        )
+
         console.log("Document successfully written!")
       })
       .catch((error) => {
@@ -258,6 +294,29 @@ export function useFirebaseAuth() {
     }
   }
 
+  const getTeamDataByReference = async (teamRef) => {
+    const mySnapshot = await getDoc(teamRef)
+    if (mySnapshot.exists()) {
+      const docData = mySnapshot.data()
+      console.log("Document data: ", docData)
+      return docData
+    } else {
+      console.log("No such document!")
+      return null
+    }
+  }
+
+  const deleteTeam = async (teamRef) => {
+    await deleteDoc(teamRef)
+      .then(() => {
+        updateUserRolesAfterTeamDelete(teamRef)
+        console.log("Document successfully deleted!")
+      })
+      .catch((error) => {
+        console.error("Error removing document: ", error)
+      })
+  }
+
   const getTeamsByLeagueId = async (leagueId, searchQuery = "") => {
     const querySnapshot = await getDocs(
       collection(firestore, "leagues", leagueId, "teams")
@@ -310,8 +369,10 @@ export function useFirebaseAuth() {
     updateUserToCaptain,
     getTeamsByLeagueId,
     joinTeam,
+    deleteTeam,
     getTeamData,
     getMembersData,
     getUserInfoByReference,
+    getTeamDataByReference,
   }
 }
