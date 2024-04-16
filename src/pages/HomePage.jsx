@@ -1,8 +1,15 @@
+import { useLocation } from "react-router-dom"
+import { Alert } from "../components"
+
 export default function HomePage() {
+  const location = useLocation()
+  const message = location.state?.message
+
   return (
     <>
       <div className="flex-col text-center h-[100%] justify-end">
         <h1 className="my-6 text-4xl">Strona główna</h1>
+        {message && <Alert message={message} type="success" />}
         <p className="max-w-[70%] mx-auto">
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris
           volutpat neque elit, a eleifend leo fermentum a. Orci varius natoque

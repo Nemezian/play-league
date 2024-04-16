@@ -32,8 +32,11 @@ export default function TeamManagement() {
   const handleDeleteTeam = () => {
     setError("")
 
+    console.log("Deleting team", userInfos.teamId)
     deleteTeam(userInfos.teamId)
-      .then(() => navigate("/"))
+      .then(() =>
+        navigate("/", { state: { message: "Drużyna została usunięta" } })
+      )
       .catch(() => setError("Błąd podczas usuwania drużyny"))
   }
 
@@ -44,11 +47,11 @@ export default function TeamManagement() {
         <button
           type="button"
           className="bg-red-500 hover:bg-red-700 text-white py-2 px-2 rounded-lg"
-          onClick={() => handleDeleteTeam}
+          onClick={() => handleDeleteTeam()}
         >
           Usuń drużynę
         </button>
-        <div className="flex items-center space-x-2">
+        {/* <div className="flex items-center space-x-2">
           <label htmlFor="team-name" className="text-white">
             Nazwa drużyny
           </label>
@@ -89,7 +92,7 @@ export default function TeamManagement() {
         </div>
         <button className="mt-4 bg-blue-500 text-white py-2 rounded-lg">
           Zapisz zmiany
-        </button>
+        </button> */}
       </div>
     </div>
   )

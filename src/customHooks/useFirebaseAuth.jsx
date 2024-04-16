@@ -169,31 +169,65 @@ export function useFirebaseAuth() {
       })
   }
 
+  // const updateUserRolesAfterTeamDelete = async (teamRefId) => {
+  //   const userColRef = collection(firestore, "users")
+  //   const querySnapshot = await getDocs(userColRef)
+  //   querySnapshot.docs.forEach(async (doc) => {
+  //     const docData = doc.data()
+  //     if (docData.teamId === teamRefId) {
+  //       const userRef = doc(firestore, "users", doc.id)
+  //       const docData = {
+  //         role: "player",
+  //         teamId: null,
+  //         updatedAt: new Date(),
+  //       }
+  //       await setDoc(userRef, docData, { merge: true })
+  //         .then(() => {
+  //           getUserInfo(currentUser.uid).then(
+  //             (info) => setUserInfos(info),
+  //             setUserInfoLoading(false)
+  //           )
+  //           console.log("User roles successfully updated!")
+  //         })
+  //         .catch((error) => {
+  //           console.error("Error while updating user roles: ", error)
+  //         })
+  //     }
+  //   })
+  // }
+
   const updateUserRolesAfterTeamDelete = async (teamRefId) => {
     const userColRef = collection(firestore, "users")
     const querySnapshot = await getDocs(userColRef)
-    querySnapshot.docs.forEach(async (doc) => {
-      const docData = doc.data()
-      if (docData.teamId === teamRefId) {
-        const userRef = doc(firestore, "users", doc.id)
-        const docData = {
+
+    if (querySnapshot.empty) {
+      console.log("No users found in the database!")
+      return
+    }
+
+    console.log("Users found in the database!")
+    console.log("QuerySnapshot docs: ", querySnapshot.docs)
+    for (const document of querySnapshot.docs) {
+      const docData = document.data()
+      const docRefPath = docData.teamId.path
+      const teamIdRefPath = teamRefId.path
+
+      if (docRefPath === teamIdRefPath) {
+        console.log("User found in the team!")
+        const userRef = doc(firestore, "users", document.id)
+        const userData = {
           role: "player",
           teamId: null,
           updatedAt: new Date(),
         }
-        await setDoc(userRef, docData, { merge: true })
-          .then(() => {
-            getUserInfo(currentUser.uid).then(
-              (info) => setUserInfos(info),
-              setUserInfoLoading(false)
-            )
-            console.log("User roles successfully updated!")
-          })
-          .catch((error) => {
-            console.error("Error while updating user roles: ", error)
-          })
+        try {
+          await setDoc(userRef, userData, { merge: true })
+          console.log("User roles successfully updated!")
+        } catch (error) {
+          console.error("Error while updating user roles: ", error)
+        }
       }
-    })
+    }
   }
 
   const createTeam = async (
@@ -315,6 +349,49 @@ export function useFirebaseAuth() {
       .catch((error) => {
         console.error("Error removing document: ", error)
       })
+  }
+
+  const leaveTeam = async (teamRef) => {
+    const userRef = doc(firestore, "users", currentUser.uid)
+    const mySnapshot = await getDoc(userRef)
+    if (mySnapshot.exists()) {
+      const docData = mySnapshot.data()
+      const userDocData = {
+        role: "player",
+        teamId: null,
+        updatedAt: new Date(),
+      }
+      await setDoc(userRef, userDocData, { merge: true })
+        .then(() => {
+          console.log("Document successfully written!")
+          getUserInfo(currentUser.uid).then(
+            (info) => setUserInfos(info),
+            setUserInfoLoading(false)
+          )
+        })
+        .catch((error) => {
+          console.error("Error adding document: ", error)
+        })
+    }
+
+    const teamDocRef = doc(firestore, "leagues", teamRef.id, "teams")
+    const myTeamSnapshot = await getDoc(teamDocRef)
+    if (myTeamSnapshot.exists()) {
+      const docData = myTeamSnapshot.data()
+      const teamDocData = {
+        players: docData.players.filter(
+          (player) => player.path !== userRef.path
+        ),
+        updatedAt: new Date(),
+      }
+      await setDoc(teamDocRef, teamDocData, { merge: true })
+        .then(() => {
+          console.log("Document successfully written!")
+        })
+        .catch((error) => {
+          console.error("Error adding document: ", error)
+        })
+    }
   }
 
   const getTeamsByLeagueId = async (leagueId, searchQuery = "") => {

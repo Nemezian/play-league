@@ -94,6 +94,13 @@ export default function DashboardPage() {
             >
               Zmień hasło
             </button>
+
+            <button
+              className="bg-red-500 hover:bg-red-700 text-white ml-2 mt-3 py-1 px-2 rounded"
+              onClick={() => handleLeaveTeam()}
+            >
+              Opuść drużynę
+            </button>
           </div>
           <div>
             <ReactModal
