@@ -179,6 +179,7 @@ export default function TeamCreation() {
                     className="mr-1 h-4 w-4 text-fourth focus:ring-third border-gray-300 rounded"
                     id={day[0]}
                     value={day[0]}
+                    isRequired={"false"}
                     onChange={(e) =>
                       setPreferredMatchDays([
                         ...preferredMatchDays,

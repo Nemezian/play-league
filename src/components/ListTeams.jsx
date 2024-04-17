@@ -42,7 +42,9 @@ export default function ListTeams({ teams, leagueId }) {
     if (selectedTeam) {
       joinTeam(selectedTeam, joinPassword, leagueId)
         .then(() => {
-          closeModal()
+          navigate(`/team/${leagueId}/${selectedTeam.id}`, {
+            state: { message: "Pomyślnie dołączono do drużyny" },
+          })
         })
         .catch((e) => {
           console.error("An error occurred while joining team", e)

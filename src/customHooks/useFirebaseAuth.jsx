@@ -18,7 +18,6 @@ import {
   addDoc,
   deleteDoc,
 } from "firebase/firestore"
-import { get } from "firebase/database"
 
 export function useFirebaseAuth() {
   const [currentUser, setCurrentUser] = useState()
@@ -142,14 +141,16 @@ export function useFirebaseAuth() {
   }
 
   const getMemberTeamNameFromReference = async (teamDocRef) => {
-    const mySnapshot = await getDoc(teamDocRef)
-    if (mySnapshot.exists()) {
-      const docData = mySnapshot.data()
-      console.log("Document data: ", docData)
-      return docData
-    } else {
-      console.log("No such document!")
-      return null
+    if (teamDocRef) {
+      const mySnapshot = await getDoc(teamDocRef)
+      if (mySnapshot.exists()) {
+        const docData = mySnapshot.data()
+        console.log("Document data: ", docData)
+        return docData
+      } else {
+        console.log("No such document!")
+        return null
+      }
     }
   }
 
@@ -168,33 +169,6 @@ export function useFirebaseAuth() {
         console.error("Error adding document: ", error)
       })
   }
-
-  // const updateUserRolesAfterTeamDelete = async (teamRefId) => {
-  //   const userColRef = collection(firestore, "users")
-  //   const querySnapshot = await getDocs(userColRef)
-  //   querySnapshot.docs.forEach(async (doc) => {
-  //     const docData = doc.data()
-  //     if (docData.teamId === teamRefId) {
-  //       const userRef = doc(firestore, "users", doc.id)
-  //       const docData = {
-  //         role: "player",
-  //         teamId: null,
-  //         updatedAt: new Date(),
-  //       }
-  //       await setDoc(userRef, docData, { merge: true })
-  //         .then(() => {
-  //           getUserInfo(currentUser.uid).then(
-  //             (info) => setUserInfos(info),
-  //             setUserInfoLoading(false)
-  //           )
-  //           console.log("User roles successfully updated!")
-  //         })
-  //         .catch((error) => {
-  //           console.error("Error while updating user roles: ", error)
-  //         })
-  //     }
-  //   })
-  // }
 
   const updateUserRolesAfterTeamDelete = async (teamRefId) => {
     const userColRef = collection(firestore, "users")
@@ -344,6 +318,7 @@ export function useFirebaseAuth() {
     await deleteDoc(teamRef)
       .then(() => {
         updateUserRolesAfterTeamDelete(teamRef)
+        setUserInfoLoading(true)
         console.log("Document successfully deleted!")
       })
       .catch((error) => {
@@ -374,8 +349,7 @@ export function useFirebaseAuth() {
         })
     }
 
-    const teamDocRef = doc(firestore, "leagues", teamRef.id, "teams")
-    const myTeamSnapshot = await getDoc(teamDocRef)
+    const myTeamSnapshot = await getDoc(teamRef)
     if (myTeamSnapshot.exists()) {
       const docData = myTeamSnapshot.data()
       const teamDocData = {
@@ -384,7 +358,7 @@ export function useFirebaseAuth() {
         ),
         updatedAt: new Date(),
       }
-      await setDoc(teamDocRef, teamDocData, { merge: true })
+      await setDoc(teamRef, teamDocData, { merge: true })
         .then(() => {
           console.log("Document successfully written!")
         })
@@ -420,13 +394,14 @@ export function useFirebaseAuth() {
   }, [])
 
   useEffect(() => {
-    if (currentUser && currentUser.uid) {
+    if (currentUser && currentUser.uid && loading === false) {
       getUserInfo(currentUser.uid).then(
         (info) => setUserInfos(info),
-        setUserInfoLoading(false)
+        setUserInfoLoading(false),
+        console.log("User info fetched", userInfos)
       )
     }
-  }, [currentUser])
+  }, [currentUser, userInfoLoading])
 
   return {
     currentUser,
@@ -451,5 +426,6 @@ export function useFirebaseAuth() {
     getMembersData,
     getUserInfoByReference,
     getTeamDataByReference,
+    leaveTeam,
   }
 }

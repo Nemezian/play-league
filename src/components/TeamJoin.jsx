@@ -3,7 +3,6 @@ import Input from "./Input"
 import ListTeams from "./ListTeams"
 import { AiOutlineSearch } from "react-icons/ai"
 import { useAuth } from "../contexts/AuthContext"
-import { render } from "react-dom"
 
 export default function TeamJoin() {
   const [searchState, setSearchState] = useState("")

@@ -6,11 +6,13 @@ import { AiOutlineClose } from "react-icons/ai"
 
 export default function DashboardPage() {
   const [message, setMessage] = useState("")
+  const [error, setError] = useState("")
   const {
     currentUser,
     userInfos,
     getMemberTeamNameFromReference,
     userInfoLoading,
+    leaveTeam,
   } = useAuth()
   const [modalIsOpen, setIsOpen] = useState(false)
   const [teamName, setTeamName] = useState("")
@@ -34,7 +36,7 @@ export default function DashboardPage() {
   }
 
   useEffect(() => {
-    if (userInfos && userInfos.teamId) {
+    if (!userInfoLoading && userInfos.teamId) {
       getMemberTeamNameFromReference(userInfos.teamId)
         .then((result) => {
           setTeamName(result.teamName)
@@ -42,8 +44,22 @@ export default function DashboardPage() {
         .catch((e) => {
           console.error("An error occurred while fetching team name", e)
         })
+    } else {
+      setTeamName("")
     }
   }, [userInfos, userInfoLoading])
+
+  const handleLeaveTeam = () => {
+    setMessage("")
+    console.log("Leaving team", userInfos.teamId)
+
+    leaveTeam(userInfos.teamId)
+      .then(() => {
+        setTeamName("")
+        setMessage("Pomyślnie opuściłeś drużynę")
+      })
+      .catch(() => setError("Błąd podczas opuszczania drużyny"))
+  }
 
   return (
     <>
@@ -54,11 +70,8 @@ export default function DashboardPage() {
             Witaj, {userInfos.firstName + " " + userInfos.lastName}!
           </h2>
         ) : null}
-        {message && (
-          <Alert message={message} type="success">
-            {message}
-          </Alert>
-        )}
+        {message && <Alert message={message} type="success" />}
+        {error && <Alert message={error} type="error" />}
         <div className="flex flex-row justify-between w-full ">
           <div>
             <h2 className="text-xl font-bold mb-4">Twoje dane:</h2>
@@ -95,12 +108,14 @@ export default function DashboardPage() {
               Zmień hasło
             </button>
 
-            <button
-              className="bg-red-500 hover:bg-red-700 text-white ml-2 mt-3 py-1 px-2 rounded"
-              onClick={() => handleLeaveTeam()}
-            >
-              Opuść drużynę
-            </button>
+            {teamName && userInfos.role != "captain" && (
+              <button
+                className="bg-red-500 hover:bg-red-700 text-white ml-2 mt-3 py-1 px-2 rounded"
+                onClick={() => handleLeaveTeam()}
+              >
+                Opuść drużynę
+              </button>
+            )}
           </div>
           <div>
             <ReactModal
