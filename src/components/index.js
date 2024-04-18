@@ -17,6 +17,7 @@ import Spinner from "./Spinner.jsx"
 import ListTeams from "./ListTeams.jsx"
 import TeamDashboard from "./TeamDashboard.jsx"
 import MemberList from "./MemberList.jsx"
+import MemberListToDelete from "./MemberListToDelete"
 
 export {
   Alert,
@@ -38,4 +39,5 @@ export {
   ListTeams,
   TeamDashboard,
   MemberList,
+  MemberListToDelete,
 }

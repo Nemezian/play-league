@@ -326,6 +326,16 @@ export function useFirebaseAuth() {
       })
   }
 
+  const updateTeamInfo = async (teamRef, teamData) => {
+    await setDoc(teamRef, teamData, { merge: true })
+      .then(() => {
+        console.log("Document successfully written!")
+      })
+      .catch((error) => {
+        console.error("Error adding document: ", error)
+      })
+  }
+
   const leaveTeam = async (teamRef) => {
     const userRef = doc(firestore, "users", currentUser.uid)
     const mySnapshot = await getDoc(userRef)
@@ -422,6 +432,7 @@ export function useFirebaseAuth() {
     getTeamsByLeagueId,
     joinTeam,
     deleteTeam,
+    updateTeamInfo,
     getTeamData,
     getMembersData,
     getUserInfoByReference,
