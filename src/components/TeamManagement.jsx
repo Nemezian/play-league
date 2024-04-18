@@ -5,6 +5,7 @@ import Spinner from "./Spinner"
 import MemberList from "./MemberList"
 import FormAction from "./FormAction"
 import Alert from "./Alert"
+import FormHeader from "./FormHeader"
 
 export default function TeamManagement() {
   const [teamData, setTeamData] = useState(null)
@@ -15,6 +16,10 @@ export default function TeamManagement() {
   const [message, setMessage] = useState("")
   const [changeState, setChangeState] = useState({})
   const navigate = useNavigate()
+  const descriptionRef = useRef()
+  const nameRef = useRef()
+  const joinPasswordRef = useRef()
+
 
   const fixedInputClass =
     "rounded-lg appearance-none  mb-2 block w-full p-1.5 md:p-2.5 px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-fourth focus:border-fourth focus:z-10 sm:text-sm"
@@ -52,17 +57,38 @@ export default function TeamManagement() {
     setChangeState({ ...changeState, [e.target.id]: e.target.value })
   }
 
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    setError("")
+    setLoading(true)
+
+    const teamData = {
+      teamName: nameRef.current.value,
+      teamDescription: descriptionRef.current.value,
+      joinPassword: joinPasswordRef.current.value
+    }
+
+    console.log("Updating team data", teamData)
+    // Update team data
+  }
+
   return (
+    
     <div>
-      <h1 className="text-2xl font-bold text-white">Zarządzaj drużyną</h1>
-      <div className="mt-4">
-        <button
+      
+      <div className=" flex justify-end items-start ">
+      <FormHeader heading="Panel zarządzania drużyną" />
+      <button
           type="button"
-          className="bg-red-500 hover:bg-red-700 text-white py-2 px-2 rounded-lg"
+          className=" bg-red-500 hover:bg-red-700 text-white py-2 px-2 rounded-lg"
           onClick={() => handleDeleteTeam()}
         >
           Usuń drużynę
         </button>
+      </div>
+
+      <div className="mt-4">
+        
         <div className="bg-gray-500/[.2] p-6 rounded-lg shadow-md">
           <h1 className="font-bold text-lg pb-2">Lista zawodników:</h1>
           {teamData && teamData.players.length > 0 ? (
@@ -73,8 +99,9 @@ export default function TeamManagement() {
             </p>
           )}
         </div>
-        <div className="flex items-center space-x-2">
-          <label htmlFor="team-name" className="text-white">
+
+          <form onSubmit={handleSubmit}>
+          <label htmlFor="team-name" className="block mb-2 text-xs font-medium text-white">
             Nazwa drużyny
           </label>
           {teamData && (
@@ -82,12 +109,14 @@ export default function TeamManagement() {
               type="text"
               id="team-name"
               defaultValue={teamData.teamName || ""}
-              className="p-2 bg-gray-500/[.8] rounded-lg"
+              onChange={handleChange}
+              ref={nameRef}
+              className={fixedInputClass}
             />
           )}
-        </div>
-        <div className="flex items-center space-x-2 mt-4">
-          <label htmlFor="team-description" className="text-white">
+
+
+          <label htmlFor="team-description" className="block mb-2 text-xs font-medium text-white">
             Opis drużyny
           </label>
           {teamData && (
@@ -101,20 +130,25 @@ export default function TeamManagement() {
               onChange={handleChange}
               rows={5}
               cols={30}
+              ref={descriptionRef}
             ></textarea>
           )}
-        </div>
-        <div className="flex items-center space-x-2 mt-4">
-          <label htmlFor="team-join-code" className="text-white">
+
+          <label htmlFor="team-join-password" className="block mb-2 text-xs font-medium text-white">
             Kod dołączenia
           </label>
-          <input
+          {teamData && <input
             type="text"
-            id="team-join-code"
-            className="p-2 bg-gray-500/[.8] rounded-lg"
-          />
-        </div>
+            id="team-join-password"
+            className={fixedInputClass}
+            defaultValue={teamData.joinPassword || ""}
+            ref={joinPasswordRef}
+            onChange={handleChange}
+
+          />}
+
         <FormAction disabled={loading} text="Zapisz zmiany" />
+        </form>
       </div>
     </div>
   )
