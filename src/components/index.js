@@ -19,6 +19,9 @@ import TeamDashboard from "./TeamDashboard.jsx"
 import MemberList from "./MemberList.jsx"
 import MemberListToDelete from "./MemberListToDelete"
 import PaginationButtons from "./PaginationButtons.jsx"
+import MatchList from "./MatchList.jsx"
+import Standings from "./Standings.jsx"
+import LastFiveIcon from "./LastFiveIcon.jsx"
 
 export {
   Alert,
@@ -42,4 +45,7 @@ export {
   MemberList,
   MemberListToDelete,
   PaginationButtons,
+  MatchList,
+  Standings,
+  LastFiveIcon,
 }

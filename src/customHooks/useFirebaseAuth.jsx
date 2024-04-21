@@ -18,6 +18,7 @@ import {
   addDoc,
   deleteDoc,
 } from "firebase/firestore"
+import { set } from "firebase/database"
 
 export function useFirebaseAuth() {
   const [currentUser, setCurrentUser] = useState()
@@ -25,7 +26,6 @@ export function useFirebaseAuth() {
   const [loading, setLoading] = useState(true)
   const [userInfoLoading, setUserInfoLoading] = useState(true)
   const [scheduleLoading, setScheduleLoading] = useState(true)
-  const [scheduleInfo, setScheduleInfo] = useState()
 
   const signup = (email, password, firstName, lastName) =>
     createUserWithEmailAndPassword(auth, email, password).then(
@@ -133,7 +133,6 @@ export function useFirebaseAuth() {
       })
   }
 
-  // Fetching all leagues for the user to choose from select box @TeamCreation
   const getLeagues = async () => {
     const querySnapshot = await getDocs(collection(firestore, "leagues"))
     const fetchedLeagues = querySnapshot.docs.map((doc) => ({
@@ -317,7 +316,7 @@ export function useFirebaseAuth() {
     }
   }
 
-  const getTeamSchedule = async (teamRef) => {
+  const getTeamSchedule = async (teamRef, sortByDateTime = false) => {
     const leagueId = teamRef.path.split("/")[1]
     const scheduleColRef = collection(
       firestore,
@@ -325,10 +324,12 @@ export function useFirebaseAuth() {
       leagueId,
       "schedule"
     )
+    setScheduleLoading(true)
     const querySnapshot = await getDocs(scheduleColRef)
     const fetchedMatches = []
 
     if (querySnapshot.empty) {
+      setScheduleLoading(false)
       console.log("No schedules found in the database!")
       return
     }
@@ -339,9 +340,47 @@ export function useFirebaseAuth() {
         docData.homeTeam.path === teamRef.path ||
         docData.awayTeam.path === teamRef.path
       ) {
-        fetchedMatches.push(docData)
+        getTeamDataByReference(docData.homeTeam)
+          .then((homeTeamData) => {
+            getTeamDataByReference(docData.awayTeam)
+              .then((awayTeamData) => {
+                const matchData = {
+                  id: document.id,
+                  ...docData,
+                  timestampDay: docData.dateTime.toDate().toLocaleDateString(),
+                  timestampHour: docData.dateTime
+                    .toDate()
+                    .toLocaleTimeString("en-GB", { timeZone: "Europe/Warsaw" }),
+                  timestampTest: docData.dateTime.toDate(),
+                  homeTeamName: homeTeamData.teamName,
+                  awayTeamName: awayTeamData.teamName,
+                }
+                fetchedMatches.push(matchData)
+              })
+              .catch((error) => {
+                console.error(
+                  "An error occurred while fetching away team data",
+                  error
+                )
+              })
+          })
+          .catch((error) => {
+            console.error(
+              "An error occurred while fetching home team data",
+              error
+            )
+          })
       }
     }
+    if (sortByDateTime) {
+      fetchedMatches.sort((a, b) => {
+        const dateTimeA = new Date(a.dateTime).getTime()
+        const dateTimeB = new Date(b.dateTime).getTime()
+        return dateTimeA - dateTimeB
+      })
+    }
+    setScheduleLoading(false)
+    console.log("Schedules found in the database!", fetchedMatches)
     return fetchedMatches
   }
 
@@ -503,6 +542,7 @@ export function useFirebaseAuth() {
     loading,
     userInfos,
     userInfoLoading,
+    scheduleLoading,
     signup,
     login,
     logout,

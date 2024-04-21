@@ -8,6 +8,7 @@ import TeamManagementPage from "./TeamManagementPage"
 import TeamJoinPage from "./TeamJoinPage"
 import TeamDashboardPage from "./TeamDashboardPage"
 import PageNotFound from "./PageNotFound"
+import StandingsPage from "./StandingsPage"
 
 export {
   HomePage,
@@ -20,4 +21,5 @@ export {
   TeamJoinPage,
   TeamDashboardPage,
   PageNotFound,
+  StandingsPage,
 }

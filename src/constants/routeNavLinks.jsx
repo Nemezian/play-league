@@ -10,6 +10,7 @@ import {
   TeamManagementPage,
   TeamDashboardPage,
   PageNotFound,
+  StandingsPage,
 } from "../pages"
 
 const routes = [
@@ -57,6 +58,14 @@ const routes = [
     element: (
       <PrivateRoute>
         <TeamDashboardPage />
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: "/standings",
+    element: (
+      <PrivateRoute>
+        <StandingsPage />
       </PrivateRoute>
     ),
   },

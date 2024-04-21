@@ -8,7 +8,9 @@ import Alert from "./Alert"
 import FormHeader from "./FormHeader"
 import ReactModal from "react-modal"
 import PaginationButtons from "./PaginationButtons"
+import MatchList from "./MatchList"
 import { AiOutlineClose } from "react-icons/ai"
+import { set } from "firebase/database"
 
 export default function TeamManagement() {
   const [teamData, setTeamData] = useState(null)
@@ -19,6 +21,7 @@ export default function TeamManagement() {
     deleteTeam,
     updateTeamInfo,
     getTeamSchedule,
+    scheduleLoading,
   } = useAuth()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -43,7 +46,10 @@ export default function TeamManagement() {
   const [renderedComponent, setRenderedComponent] = useState("info")
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize] = useState(10) // You can adjust the page size here
+  const [currentPageMatches, setCurrentPageMatches] = useState(1)
   const [totalPages, setTotalPages] = useState(0)
+  const [pageSizeMatches] = useState(5) // You can adjust the page size here
+  const [totalPagesMatches, setTotalPagesMatches] = useState(0)
   const [modalIsOpen, setIsOpen] = useState(false)
 
   const fixedInputClass =
@@ -67,12 +73,11 @@ export default function TeamManagement() {
         .then((data) => {
           setTeamData(data)
           console.log("Team data fetched", data)
-          setLoading(false)
         })
         .catch((error) => {
-          setError(error)
-          setLoading(false)
+          console.error("An error occurred while fetching team data", error)
         })
+        .finally(() => setLoading(false))
     }
   }, [userInfos, userInfoLoading])
 
@@ -101,16 +106,31 @@ export default function TeamManagement() {
   }, [teamData, pageSize])
 
   useEffect(() => {
+    setError("")
+
     if (userInfos.teamId) {
-      getTeamSchedule(userInfos.teamId)
+      getTeamSchedule(userInfos.teamId, true)
         .then((data) => {
+          console.log("Pobieranie danych meczów drużyny")
           setTeamMatches(data)
         })
         .catch((error) => {
+          setError("Błąd podczas pobierania meczów drużyny")
           console.error("An error occurred while fetching team matches", error)
         })
+        .finally(() => {
+          console.log("Team matches count: ", teamMatches)
+          console.log("Team matches count: ", teamMatches.length)
+        })
     }
-  }, [userInfos])
+  }, [userInfos, userInfoLoading, pageSizeMatches])
+
+  useEffect(() => {
+    if (teamMatches.length > 0) {
+      const total = Math.ceil(teamMatches.length / pageSizeMatches)
+      setTotalPagesMatches(total)
+    }
+  }, [teamMatches, pageSizeMatches])
 
   const handleDeleteTeam = () => {
     setError("")
@@ -163,9 +183,6 @@ export default function TeamManagement() {
       })
       .catch(() => setError("Błąd podczas aktualizacji danych drużyny"))
       .finally(() => setLoading(false))
-
-    console.log("Updating team data", queryTeamData)
-    // Update team data
   }
 
   const handleChangeWeekDay = (e) => {
@@ -198,8 +215,6 @@ export default function TeamManagement() {
       })
       .catch(() => setError("Błąd podczas aktualizacji dni rozgrywek"))
       .finally(() => setLoading(false))
-
-    console.log("Updating team data", queryTeamData)
   }
 
   const handleComponentChange = (component) => {
@@ -210,6 +225,10 @@ export default function TeamManagement() {
 
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage)
+  }
+
+  const handlePageChangeMatches = (newPage) => {
+    setCurrentPageMatches(newPage)
   }
 
   return (
@@ -319,9 +338,41 @@ export default function TeamManagement() {
               )}
             </div>
             <PaginationButtons
+              handlePageChange={handlePageChangeMatches}
+              currentPage={currentPageMatches}
+              totalPages={totalPages}
+              className="flex justify-center mt-4"
+            />
+          </div>
+        )}
+        {renderedComponent === "matches" && (
+          <div className="flex flex-col justify-between w-full h-full">
+            <div>
+              <h1 className="font-bold text-lg pb-2 flex justify-center items-center">
+                <span>Lista meczów</span>
+              </h1>
+              {teamMatches && teamData && (
+                <>
+                  {teamMatches.length > 0 ? (
+                    <MatchList
+                      matches={teamMatches}
+                      itemsClassName="flex flex-col justify-center  mb-1 bg-gray-300/[.2] p-1 rounded-md"
+                      page={currentPageMatches}
+                      pageSize={pageSizeMatches}
+                      currentTeamName={teamData.teamName}
+                    />
+                  ) : (
+                    <p className="text-red-700 text-base text-center ">
+                      Brak meczów drużyny
+                    </p>
+                  )}
+                </>
+              )}
+            </div>
+            <PaginationButtons
               handlePageChange={handlePageChange}
               currentPage={currentPage}
-              totalPages={totalPages}
+              totalPages={totalPagesMatches}
               className="flex justify-center mt-4"
             />
           </div>
