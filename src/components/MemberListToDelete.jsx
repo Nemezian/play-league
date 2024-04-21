@@ -7,38 +7,64 @@ export default function MemberListToDelete({
   divClassName = "",
   listClassName = "",
   itemsClassName = "",
+  page = 1,
+  pageSize = 10,
 }) {
-  const { getMembersData } = useAuth()
+  const { getMembersData, kickTeamMember } = useAuth()
   const [membersData, setMembersData] = useState(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    setLoading(true)
     getMembersData(members)
       .then((data) => {
         setMembersData(data)
-        setLoading(false)
       })
       .catch((error) => {
         console.error("An error occurred while fetching members data", error)
-        setLoading(false)
       })
+      .finally(() => setLoading(false))
   }, [members])
+
+  const handleKickPlayer = (playerId) => {
+    return () => {
+      setLoading(true)
+      kickTeamMember(playerId)
+        .then(() => {
+          setLoading(true)
+          setMembersData((prevData) =>
+            prevData.filter((player) => player.id !== playerId)
+          )
+        })
+        .catch((error) => {
+          console.error("An error occurred while kicking the player", error)
+        })
+        .finally(() => setLoading(false))
+    }
+  }
 
   if (loading) {
     return <Spinner positioning=" flex justify-center" />
   }
 
+  const startIndex = (page - 1) * pageSize
+  const endIndex = startIndex + pageSize
+  const paginatedData = membersData.slice(startIndex, endIndex)
+
   return (
     <div className={divClassName}>
-      {membersData && (
+      {paginatedData && (
         <ul className={listClassName}>
-          {membersData.map((player, index) => (
+          {paginatedData.map((player, index) => (
             <li key={index} className={itemsClassName}>
               <p>
-                {index + 1}. {player.firstName} {player.lastName}
+                {startIndex + index + 1}. {player.firstName} {player.lastName}
               </p>
 
-              <button className="bg-red-500 hover:bg-red-700 text-white py-1 px-1 rounded-lg">
+              <button
+                className="bg-red-500 hover:bg-red-700 text-white py-1 px-1 rounded-lg"
+                onClick={handleKickPlayer(player.id)}
+              >
                 Wyrzuć
               </button>
             </li>

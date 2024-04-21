@@ -24,6 +24,8 @@ export function useFirebaseAuth() {
   const [userInfos, setUserInfos] = useState()
   const [loading, setLoading] = useState(true)
   const [userInfoLoading, setUserInfoLoading] = useState(true)
+  const [scheduleLoading, setScheduleLoading] = useState(true)
+  const [scheduleInfo, setScheduleInfo] = useState()
 
   const signup = (email, password, firstName, lastName) =>
     createUserWithEmailAndPassword(auth, email, password).then(
@@ -105,7 +107,8 @@ export function useFirebaseAuth() {
       const mySnapshot = await getDoc(member)
       if (mySnapshot.exists()) {
         const docData = mySnapshot.data()
-        membersData.push(docData)
+        const memberDataWithId = { ...docData, id: member.id }
+        membersData.push(memberDataWithId)
       } else {
         console.log("No such document!")
       }
@@ -314,6 +317,34 @@ export function useFirebaseAuth() {
     }
   }
 
+  const getTeamSchedule = async (teamRef) => {
+    const leagueId = teamRef.path.split("/")[1]
+    const scheduleColRef = collection(
+      firestore,
+      "leagues",
+      leagueId,
+      "schedule"
+    )
+    const querySnapshot = await getDocs(scheduleColRef)
+    const fetchedMatches = []
+
+    if (querySnapshot.empty) {
+      console.log("No schedules found in the database!")
+      return
+    }
+
+    for (const document of querySnapshot.docs) {
+      const docData = document.data()
+      if (
+        docData.homeTeam.path === teamRef.path ||
+        docData.awayTeam.path === teamRef.path
+      ) {
+        fetchedMatches.push(docData)
+      }
+    }
+    return fetchedMatches
+  }
+
   const deleteTeam = async (teamRef) => {
     await deleteDoc(teamRef)
       .then(() => {
@@ -336,11 +367,65 @@ export function useFirebaseAuth() {
       })
   }
 
+  const kickTeamMember = async (playerId) => {
+    const memberRef = doc(firestore, "users", playerId)
+    const mySnapshot = await getDoc(memberRef)
+    if (mySnapshot.exists()) {
+      const userDocData = mySnapshot.data()
+      if (
+        userDocData.role === "captain" ||
+        userDocData.role === "player" ||
+        userDocData.teamId === null
+      ) {
+        console.log("Cannot kick this user from the team")
+        return
+      }
+      const teamRef = userDocData.teamId
+      const teamSnapshot = await getDoc(teamRef)
+      if (teamSnapshot.exists()) {
+        const teamDocData = teamSnapshot.data()
+        const teamData = {
+          players: teamDocData.players.filter(
+            (player) => player.path !== memberRef.path
+          ),
+          updatedAt: new Date(),
+        }
+        await setDoc(teamRef, teamData, { merge: true })
+          .then(() => {
+            console.log("Team document successfully updated!")
+          })
+          .catch((error) => {
+            console.error("Error while setting team document: ", error)
+          })
+
+        const userData = {
+          role: "player",
+          teamId: null,
+          updatedAt: new Date(),
+        }
+        await setDoc(memberRef, userData, { merge: true })
+          .then(() => {
+            console.log("User document successfully updated!")
+            setUserInfoLoading(true)
+            getUserInfo(currentUser.uid).then(
+              (info) => setUserInfos(info),
+              setUserInfoLoading(false)
+            )
+          })
+          .catch((error) => {
+            console.error("Error while setting user document: ", error)
+          })
+      }
+    } else {
+      console.log("No such document!")
+      return null
+    }
+  }
+
   const leaveTeam = async (teamRef) => {
     const userRef = doc(firestore, "users", currentUser.uid)
     const mySnapshot = await getDoc(userRef)
     if (mySnapshot.exists()) {
-      const docData = mySnapshot.data()
       const userDocData = {
         role: "player",
         teamId: null,
@@ -432,6 +517,8 @@ export function useFirebaseAuth() {
     getTeamsByLeagueId,
     joinTeam,
     deleteTeam,
+    getTeamSchedule,
+    kickTeamMember,
     updateTeamInfo,
     getTeamData,
     getMembersData,

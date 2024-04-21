@@ -18,6 +18,7 @@ import ListTeams from "./ListTeams.jsx"
 import TeamDashboard from "./TeamDashboard.jsx"
 import MemberList from "./MemberList.jsx"
 import MemberListToDelete from "./MemberListToDelete"
+import PaginationButtons from "./PaginationButtons.jsx"
 
 export {
   Alert,
@@ -40,4 +41,5 @@ export {
   TeamDashboard,
   MemberList,
   MemberListToDelete,
+  PaginationButtons,
 }
