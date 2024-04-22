@@ -95,40 +95,40 @@ export default function TeamManagement() {
   }, [preferredMatchDays])
 
   useEffect(() => {
-    if (teamData) {
+
+    if (teamData && teamData.players.length > 0) {
       const total = Math.ceil(teamData.players.length / pageSize)
       setTotalPages(total)
-
-      if (currentPage > total) {
-        setCurrentPage(total)
-      }
+    }
+    else {
+      setTotalPages(1)
     }
   }, [teamData, pageSize])
 
   useEffect(() => {
-    setError("")
 
-    if (userInfos.teamId) {
-      getTeamSchedule(userInfos.teamId, true)
+    console.log("Team matches effect", userInfos, userInfoLoading)
+    if (userInfos) {
+      getTeamSchedule(userInfos.teamId)
         .then((data) => {
-          console.log("Pobieranie danych meczów drużyny")
           setTeamMatches(data)
+          console.log("Team matches fetched", data)
         })
         .catch((error) => {
           setError("Błąd podczas pobierania meczów drużyny")
           console.error("An error occurred while fetching team matches", error)
         })
-        .finally(() => {
-          console.log("Team matches count: ", teamMatches)
-          console.log("Team matches count: ", teamMatches.length)
-        })
     }
-  }, [userInfos, userInfoLoading, pageSizeMatches])
+
+  }, [userInfos, userInfoLoading])
 
   useEffect(() => {
-    if (teamMatches.length > 0) {
+    if (teamMatches && teamMatches.length > 0) {
       const total = Math.ceil(teamMatches.length / pageSizeMatches)
       setTotalPagesMatches(total)
+    }
+    else {
+      setTotalPagesMatches(1)
     }
   }, [teamMatches, pageSizeMatches])
 
@@ -351,9 +351,7 @@ export default function TeamManagement() {
               <h1 className="font-bold text-lg pb-2 flex justify-center items-center">
                 <span>Lista meczów</span>
               </h1>
-              {teamMatches && teamData && (
-                <>
-                  {teamMatches.length > 0 ? (
+                  {(teamMatches && teamData && teamMatches.length > 0) ? (
                     <MatchList
                       matches={teamMatches}
                       itemsClassName="flex flex-col justify-center  mb-1 bg-gray-300/[.2] p-1 rounded-md"
@@ -366,8 +364,6 @@ export default function TeamManagement() {
                       Brak meczów drużyny
                     </p>
                   )}
-                </>
-              )}
             </div>
             <PaginationButtons
               handlePageChange={handlePageChange}
