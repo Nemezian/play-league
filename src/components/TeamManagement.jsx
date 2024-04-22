@@ -10,7 +10,6 @@ import ReactModal from "react-modal"
 import PaginationButtons from "./PaginationButtons"
 import MatchList from "./MatchList"
 import { AiOutlineClose } from "react-icons/ai"
-import { set } from "firebase/database"
 
 export default function TeamManagement() {
   const [teamData, setTeamData] = useState(null)
@@ -21,7 +20,6 @@ export default function TeamManagement() {
     deleteTeam,
     updateTeamInfo,
     getTeamSchedule,
-    scheduleLoading,
   } = useAuth()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -95,18 +93,15 @@ export default function TeamManagement() {
   }, [preferredMatchDays])
 
   useEffect(() => {
-
     if (teamData && teamData.players.length > 0) {
       const total = Math.ceil(teamData.players.length / pageSize)
       setTotalPages(total)
-    }
-    else {
+    } else {
       setTotalPages(1)
     }
   }, [teamData, pageSize])
 
   useEffect(() => {
-
     console.log("Team matches effect", userInfos, userInfoLoading)
     if (userInfos) {
       getTeamSchedule(userInfos.teamId)
@@ -119,15 +114,13 @@ export default function TeamManagement() {
           console.error("An error occurred while fetching team matches", error)
         })
     }
-
   }, [userInfos, userInfoLoading])
 
   useEffect(() => {
     if (teamMatches && teamMatches.length > 0) {
       const total = Math.ceil(teamMatches.length / pageSizeMatches)
       setTotalPagesMatches(total)
-    }
-    else {
+    } else {
       setTotalPagesMatches(1)
     }
   }, [teamMatches, pageSizeMatches])
@@ -351,19 +344,19 @@ export default function TeamManagement() {
               <h1 className="font-bold text-lg pb-2 flex justify-center items-center">
                 <span>Lista meczów</span>
               </h1>
-                  {(teamMatches && teamData && teamMatches.length > 0) ? (
-                    <MatchList
-                      matches={teamMatches}
-                      itemsClassName="flex flex-col justify-center  mb-1 bg-gray-300/[.2] p-1 rounded-md"
-                      page={currentPageMatches}
-                      pageSize={pageSizeMatches}
-                      currentTeamName={teamData.teamName}
-                    />
-                  ) : (
-                    <p className="text-red-700 text-base text-center ">
-                      Brak meczów drużyny
-                    </p>
-                  )}
+              {teamMatches && teamData && teamMatches.length > 0 ? (
+                <MatchList
+                  matches={teamMatches}
+                  itemsClassName="flex flex-col justify-center  mb-1 bg-gray-300/[.2] p-1 rounded-md"
+                  page={currentPageMatches}
+                  pageSize={pageSizeMatches}
+                  currentTeamName={teamData.teamName}
+                />
+              ) : (
+                <p className="text-red-700 text-base text-center ">
+                  Brak meczów drużyny
+                </p>
+              )}
             </div>
             <PaginationButtons
               handlePageChange={handlePageChange}

@@ -18,7 +18,7 @@ import {
   addDoc,
   deleteDoc,
 } from "firebase/firestore"
-import { set } from "firebase/database"
+import { get, set, update } from "firebase/database"
 
 export function useFirebaseAuth() {
   const [currentUser, setCurrentUser] = useState()
@@ -185,6 +185,9 @@ export function useFirebaseAuth() {
     console.log("QuerySnapshot docs: ", querySnapshot.docs)
     for (const document of querySnapshot.docs) {
       const docData = document.data()
+      if (docData.teamId === null) {
+        continue
+      }
       const docRefPath = docData.teamId.path
       const teamIdRefPath = teamRefId.path
 
@@ -225,6 +228,7 @@ export function useFirebaseAuth() {
       createdAt: new Date(),
       updatedAt: new Date(),
     }
+    setUserInfoLoading(true)
     await addDoc(teamColRef, docData)
       .then((result) => {
         updateUserToCaptain(result.id, leagueId)
@@ -232,7 +236,41 @@ export function useFirebaseAuth() {
           (info) => setUserInfos(info),
           setUserInfoLoading(false)
         )
+        createDefaultStandingsRecord(result.id, leagueId)
 
+        console.log("Document successfully written!")
+      })
+      .catch((error) => {
+        console.error("Error adding document: ", error)
+      })
+  }
+
+  const countLeagueTeams = async (leagueId) => {
+    const teamColRef = collection(firestore, "leagues", leagueId, "teams")
+    const querySnapshot = await getDocs(teamColRef)
+    return querySnapshot.size
+  }
+
+  const createDefaultStandingsRecord = async (teamId, leagueId) => {
+    const standingsDocRef = doc(
+      firestore,
+      "leagues",
+      leagueId,
+      "standings",
+      teamId
+    )
+    const docData = {
+      points: 0,
+      wins: 0,
+      draws: 0,
+      losses: 0,
+      matchesPlayed: 0,
+      lastFive: [null, null, null, null, null],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }
+    await setDoc(standingsDocRef, docData)
+      .then(() => {
         console.log("Document successfully written!")
       })
       .catch((error) => {
@@ -289,6 +327,48 @@ export function useFirebaseAuth() {
           })
       }
     }
+  }
+
+  const getLeagueStandings = async (leagueId) => {
+    if (!leagueId) {
+      console.error("League ID is not provided!")
+      return
+    }
+
+    const teamColRef = collection(firestore, "leagues", leagueId, "teams")
+    const teamQuerySnapshot = await getDocs(teamColRef)
+    const fetchedTeams = teamQuerySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      teamName: doc.data().teamName,
+    }))
+    const fetchedStandings = []
+
+    if (teamQuerySnapshot.empty) {
+      console.log("No teams found in the database!")
+      return
+    }
+
+    for (const team of fetchedTeams) {
+      const teamId = team.id
+      const standingsDocRef = doc(
+        firestore,
+        "leagues",
+        leagueId,
+        "standings",
+        teamId
+      )
+      const mySnapshot = await getDoc(standingsDocRef)
+      if (mySnapshot.exists()) {
+        const docData = mySnapshot.data()
+        const teamStandingsData = {
+          ...team,
+          ...docData,
+        }
+        fetchedStandings.push(teamStandingsData)
+      }
+    }
+
+    return fetchedStandings
   }
 
   const getTeamData = async (leagueId, teamId) => {
@@ -387,8 +467,31 @@ export function useFirebaseAuth() {
   const deleteTeam = async (teamRef) => {
     await deleteDoc(teamRef)
       .then(() => {
+        console.log("Document successfully deleted!")
         updateUserRolesAfterTeamDelete(teamRef)
-        setUserInfoLoading(true)
+        deleteTeamStandingsRecord(teamRef)
+        getUserInfo(currentUser.uid).then(
+          (info) => setUserInfos(info),
+          setUserInfoLoading(false)
+        )
+      })
+      .catch((error) => {
+        console.error("Error removing document: ", error)
+      })
+  }
+
+  const deleteTeamStandingsRecord = async (teamRef) => {
+    const leagueId = teamRef.path.split("/")[1]
+    const teamId = teamRef.path.split("/")[3]
+    const standingsDocRef = doc(
+      firestore,
+      "leagues",
+      leagueId,
+      "standings",
+      teamId
+    )
+    await deleteDoc(standingsDocRef)
+      .then(() => {
         console.log("Document successfully deleted!")
       })
       .catch((error) => {
@@ -518,6 +621,149 @@ export function useFirebaseAuth() {
     return fetchedTeams
   }
 
+  const deleteAllMatchesButFirst = async (leagueId) => {
+    const scheduleColRef = collection(
+      firestore,
+      "leagues",
+      leagueId,
+      "schedule"
+    )
+    const querySnapshot = await getDocs(scheduleColRef)
+
+    if (querySnapshot.empty) {
+      console.log("No schedules found in the database!")
+      return
+    }
+
+    const batch = firestore.batch()
+    querySnapshot.docs.slice(1).forEach((doc) => {
+      batch.delete(doc.ref)
+    })
+
+    await batch.commit()
+    console.log("All matches but the first one have been deleted")
+  }
+
+  // Function to generate a match schedule for teams in a league
+  const generateMatchSchedule = async (leagueId) => {
+    try {
+      const leagueRef = doc(firestore, "leagues", leagueId)
+      const leagueDoc = await getDocs(leagueRef)
+
+      if (!leagueDoc.exists) {
+        console.error("League not found")
+        return
+      }
+
+      const leagueData = leagueDoc.data()
+      const teams = leagueData.teams
+      const matchSchedule = []
+      const weekdays = [
+        "monday",
+        "tuesday",
+        "wednesday",
+        "thursday",
+        "friday",
+        "saturday",
+        "sunday",
+      ]
+
+      // Determine the number of rounds needed for a round-robin schedule
+      const numTeams = teams.length
+      const numRounds = numTeams - 1
+
+      // Generate matches for each round
+      for (let round = 0; round < numRounds; round++) {
+        const roundMatches = []
+
+        // Determine matches for this round
+        for (let i = 0; i < numTeams / 2; i++) {
+          const homeTeam = teams[i]
+          const awayTeam = teams[numTeams - 1 - i]
+          const matchDate = await getNextMatchDate(
+            homeTeam,
+            awayTeam,
+            matchSchedule,
+            weekdays
+          )
+
+          // Create a match object with home team, away team, and match date
+          const match = {
+            homeTeam: homeTeam,
+            awayTeam: awayTeam,
+            dateTime: matchDate,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            result: { homeScore: null, awayScore: null },
+            status: "upcoming",
+          }
+
+          roundMatches.push(match)
+
+          await addDoc(collection(leagueRef, "schedule"), match)
+        }
+
+        matchSchedule.push(roundMatches)
+
+        // Rotate teams for the next round
+        teams.splice(1, 0, teams.pop())
+      }
+
+      // Save match schedule to Firestore
+      //await leagueRef.update({ matchSchedule: matchSchedule });
+      await setDoc(leagueRef, { matchSchedule: matchSchedule })
+        .then(() => {
+          console.log("Match schedule generated and saved successfully")
+        })
+        .catch((error) => {
+          console.error("An error occurred:", error)
+        })
+    } catch (error) {
+      console.error("An error occurred:", error)
+    }
+  }
+
+  // Function to get the next available match date based on preferred weekdays
+  async function getNextMatchDate(homeTeam, awayTeam, matchSchedule, weekdays) {
+    const preferredWeekdays = homeTeam.preferredWeekdays.concat(
+      awayTeam.preferredWeekdays
+    )
+    const matchesPerWeekday = {}
+
+    // Count existing matches scheduled for each weekday
+    matchSchedule.forEach((roundMatches) => {
+      roundMatches.forEach((match) => {
+        const matchWeekday = match.dateTime.getDay()
+        matchesPerWeekday[matchWeekday] =
+          (matchesPerWeekday[matchWeekday] || 0) + 1
+      })
+    })
+
+    // Find the first available weekday for the match
+    let nextMatchDate
+    for (const weekday of preferredWeekdays) {
+      const weekdayIndex = weekdays.indexOf(weekday)
+      const matchCount = matchesPerWeekday[weekdayIndex] || 0
+      if (matchCount < teams.length / 2) {
+        nextMatchDate = await getNextWeekday(weekdayIndex)
+        break
+      }
+    }
+
+    return nextMatchDate
+  }
+
+  // Function to get the next weekday date based on the current day
+  async function getNextWeekday(weekdayIndex) {
+    const today = new Date()
+    const currentDay = today.getDay()
+    let daysToAdd = (weekdayIndex + 7 - currentDay) % 7
+    if (daysToAdd === 0) daysToAdd = 7 // If it's already the preferred weekday, schedule for the next week
+    const nextWeekday = new Date(today)
+    nextWeekday.setDate(today.getDate() + daysToAdd)
+    return nextWeekday
+  }
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setCurrentUser(user)
@@ -531,8 +777,7 @@ export function useFirebaseAuth() {
     if (currentUser && currentUser.uid && loading === false) {
       getUserInfo(currentUser.uid).then(
         (info) => setUserInfos(info),
-        setUserInfoLoading(false),
-        console.log("User info fetched", userInfos)
+        setUserInfoLoading(false)
       )
     }
   }, [currentUser, userInfoLoading])
@@ -565,5 +810,9 @@ export function useFirebaseAuth() {
     getUserInfoByReference,
     getTeamDataByReference,
     leaveTeam,
+    getLeagueStandings,
+    countLeagueTeams,
+    generateMatchSchedule,
+    deleteAllMatchesButFirst,
   }
 }

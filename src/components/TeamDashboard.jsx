@@ -8,7 +8,7 @@ import MemberList from "./MemberList"
 
 export default function TeamDashboard() {
   const { leagueId, teamId } = useParams()
-  const { getTeamData, getUserInfoByReference, joinTeam, userInfos } = useAuth()
+  const { getTeamData, getUserInfoByReference } = useAuth()
   const [teamData, setTeamData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)

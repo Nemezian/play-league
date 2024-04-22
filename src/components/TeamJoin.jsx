@@ -72,7 +72,9 @@ export default function TeamJoin() {
     <>
       <div>
         <div className="flex justify-center items-center">
-          <h1 className="text-4xl font-bold text-white">Dołącz do drużyny</h1>
+          <h1 className="text-3xl font-extrabold text-white">
+            Dołącz do drużyny
+          </h1>
         </div>
         <div className="mt-4 flex justify-center items-center">
           <Input

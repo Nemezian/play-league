@@ -17,11 +17,12 @@ export default function TeamCreation() {
   const [message, setMessage] = useState("")
   const [leagues, setLeagues] = useState([])
   const [selectedLeague, setSelectedLeague] = useState("")
-  const { createTeam, getLeagues, userInfos } = useAuth()
+  const { createTeam, getLeagues, userInfos, countLeagueTeams } = useAuth()
   const nameRef = useRef()
   const teamCodeRef = useRef()
   const descriptionRef = useRef()
   const [preferredMatchDays, setPreferredMatchDays] = useState([])
+  const [leagueTeamCount, setLeagueTeamCount] = useState(0)
   const weekDays = [
     ["monday", "Poniedziałek"],
     ["tuesday", "Wtorek"],
@@ -31,6 +32,7 @@ export default function TeamCreation() {
     ["saturday", "Sobota"],
     ["sunday", "Niedziela"],
   ]
+  const navigate = useNavigate()
 
   const fixedInputClass =
     "rounded-lg appearance-none  mb-2 block w-full p-1.5 md:p-2.5 px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-fourth focus:border-fourth focus:z-10 sm:text-sm"
@@ -41,6 +43,16 @@ export default function TeamCreation() {
       .then((leagues) => {
         console.log("Leagues fetched", leagues)
         setLeagues(leagues)
+        for (let i = 0; i < leagues.length; i++) {
+          countLeagueTeams(leagues[i].id)
+            .then((countLeagueTeams) => {
+              setLeagueTeamCount((prev) => [...prev, countLeagueTeams])
+              console.log("League team count fetched", countLeagueTeams)
+            })
+            .catch((e) => {
+              console.error("An error occurred while fetching leagues", e)
+            })
+        }
       })
       .catch((e) => {
         console.error("An error occurred while fetching leagues", e)
@@ -72,7 +84,7 @@ export default function TeamCreation() {
       preferredMatchDays
     )
       .then(() => {
-        setMessage("Drużyna została stworzona")
+        navigate("/", { state: { message: "Drużyna została stworzona" } })
       })
       .catch((e) => {
         setError("Nie udało się stworzyć drużyny")
@@ -179,7 +191,7 @@ export default function TeamCreation() {
                     className="mr-1 h-4 w-4 text-fourth focus:ring-third border-gray-300 rounded"
                     id={day[0]}
                     value={day[0]}
-                    isRequired={"false"}
+                    isrequired={"false"}
                     onChange={(e) =>
                       setPreferredMatchDays([
                         ...preferredMatchDays,

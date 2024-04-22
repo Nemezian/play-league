@@ -70,6 +70,14 @@ export default function Nav() {
           Strona główna
         </NavLink>
 
+        {currentUser && (
+          <NavLink
+            className="block p-3 whitespace-nowrap hover:text-gray-400"
+            to="/standings"
+          >
+            Tabele ligowe
+          </NavLink>
+        )}
         {currentUser && userInfos && (
           <div className="relative">
             <button
@@ -146,6 +154,7 @@ export default function Nav() {
             Rejestracja
           </NavLink>
         )}
+
         {currentUser ? (
           <button
             className="block px-4 py-3 bg-fourth rounded whitespace-nowrap hover:bg-third"
@@ -186,6 +195,14 @@ export default function Nav() {
         >
           Strona główna
         </NavLink>
+        {currentUser && (
+          <NavLink
+            className="block p-3 border-b border-secondary hover:bg-secondary"
+            to="/standings"
+          >
+            Tabele ligowe
+          </NavLink>
+        )}
         {currentUser && userInfos && (
           <>
             {(userInfos.role === "administrator" ||

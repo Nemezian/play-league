@@ -69,6 +69,14 @@ const routes = [
       </PrivateRoute>
     ),
   },
+  {
+    path: "/standings/:leagueId",
+    element: (
+      <PrivateRoute>
+        <StandingsPage />
+      </PrivateRoute>
+    ),
+  },
   { path: "*", element: <PageNotFound /> },
 ]
 
