@@ -635,28 +635,28 @@ export function useFirebaseAuth() {
       return
     }
 
-    const batch = firestore.batch()
-    querySnapshot.docs.slice(1).forEach((doc) => {
-      batch.delete(doc.ref)
-    })
+    const firstMatch = querySnapshot.docs[0]
+    const firstMatchId = firstMatch.id
 
-    await batch.commit()
-    console.log("All matches but the first one have been deleted")
+    for (const document of querySnapshot.docs) {
+      if (document.id !== firstMatchId) {
+        await deleteDoc(document.ref)
+          .then(() => {
+            console.log("Document successfully deleted!")
+          })
+          .catch((error) => {
+            console.error("Error removing document: ", error)
+          })
+      }
+    }
   }
 
   // Function to generate a match schedule for teams in a league
   const generateMatchSchedule = async (leagueId) => {
-    try {
+
       const leagueRef = doc(firestore, "leagues", leagueId)
-      const leagueDoc = await getDocs(leagueRef)
+      const teams = await getTeamsByLeagueId(leagueId)
 
-      if (!leagueDoc.exists) {
-        console.error("League not found")
-        return
-      }
-
-      const leagueData = leagueDoc.data()
-      const teams = leagueData.teams
       const matchSchedule = []
       const weekdays = [
         "monday",
@@ -678,30 +678,32 @@ export function useFirebaseAuth() {
 
         // Determine matches for this round
         for (let i = 0; i < numTeams / 2; i++) {
-          const homeTeam = teams[i]
-          const awayTeam = teams[numTeams - 1 - i]
-          const matchDate = await getNextMatchDate(
-            homeTeam,
-            awayTeam,
-            matchSchedule,
-            weekdays
-          )
+          const homeTeamIndex = i;
+    const awayTeamIndex = (numRounds - i + round) % numRounds; // Rotate teams for each round
+    const homeTeam = teams[homeTeamIndex];
+    const awayTeam = teams[awayTeamIndex];
 
+    // Ensure home team is not the same as away team
+    if (homeTeam !== awayTeam) {
+      const matchDate = await getNextMatchDate(homeTeam, awayTeam, matchSchedule, weekdays, numTeams);
+
+        console.log("Match date: ", matchDate)
           // Create a match object with home team, away team, and match date
           const match = {
-            homeTeam: homeTeam,
-            awayTeam: awayTeam,
+            homeTeam: homeTeam.teamName,
+            awayTeam: awayTeam.teamName,
             dateTime: matchDate,
             createdAt: new Date(),
             updatedAt: new Date(),
             result: { homeScore: null, awayScore: null },
             status: "upcoming",
           }
-
           roundMatches.push(match)
 
-          await addDoc(collection(leagueRef, "schedule"), match)
+          console.log("added match ", match, " to round ", round, " matches")
+          // await addDoc(collection(firestore, "leagues", leagueId, "schedule"), match)
         }
+      }
 
         matchSchedule.push(roundMatches)
 
@@ -709,25 +711,28 @@ export function useFirebaseAuth() {
         teams.splice(1, 0, teams.pop())
       }
 
-      // Save match schedule to Firestore
-      //await leagueRef.update({ matchSchedule: matchSchedule });
-      await setDoc(leagueRef, { matchSchedule: matchSchedule })
-        .then(() => {
-          console.log("Match schedule generated and saved successfully")
-        })
-        .catch((error) => {
-          console.error("An error occurred:", error)
-        })
-    } catch (error) {
-      console.error("An error occurred:", error)
-    }
+      console.log("Match schedule: ", matchSchedule)
+
+  // await setDoc(leagueRef, { matchSchedule }, { merge: true })
+  // .then(() => {
+  //   console.log("Document successfully written!")
+  // }).catch((error) => {
+  //   console.error("Error adding document: ", error)
+  // })
+    
   }
 
   // Function to get the next available match date based on preferred weekdays
-  async function getNextMatchDate(homeTeam, awayTeam, matchSchedule, weekdays) {
-    const preferredWeekdays = homeTeam.preferredWeekdays.concat(
-      awayTeam.preferredWeekdays
+  async function getNextMatchDate(homeTeam, awayTeam, matchSchedule, weekdays, teamsLength) {
+    
+    let preferredMatchDays = homeTeam.preferredMatchDays.concat(
+      awayTeam.preferredMatchDays
     )
+
+    if(preferredMatchDays.length === 0) {
+      preferredMatchDays = weekdays
+    }
+
     const matchesPerWeekday = {}
 
     // Count existing matches scheduled for each weekday
@@ -741,10 +746,10 @@ export function useFirebaseAuth() {
 
     // Find the first available weekday for the match
     let nextMatchDate
-    for (const weekday of preferredWeekdays) {
+    for (const weekday of preferredMatchDays) {
       const weekdayIndex = weekdays.indexOf(weekday)
       const matchCount = matchesPerWeekday[weekdayIndex] || 0
-      if (matchCount < teams.length / 2) {
+      if (matchCount < teamsLength / 2) {
         nextMatchDate = await getNextWeekday(weekdayIndex)
         break
       }
@@ -755,14 +760,21 @@ export function useFirebaseAuth() {
 
   // Function to get the next weekday date based on the current day
   async function getNextWeekday(weekdayIndex) {
-    const today = new Date()
-    const currentDay = today.getDay()
-    let daysToAdd = (weekdayIndex + 7 - currentDay) % 7
-    if (daysToAdd === 0) daysToAdd = 7 // If it's already the preferred weekday, schedule for the next week
-    const nextWeekday = new Date(today)
-    nextWeekday.setDate(today.getDate() + daysToAdd)
-    return nextWeekday
+    const today = new Date();
+    const currentDay = today.getDay(); // Get the current day index (0 for Sunday, 1 for Monday, ..., 6 for Saturday)
+    console.log('Current day index:', currentDay);
+  
+    let daysToAdd = (weekdayIndex + 7 - currentDay) % 7; // Calculate the number of days to add to reach the desired weekday
+    if (daysToAdd === 0) daysToAdd = 7; // If it's already the preferred weekday, schedule for the next week
+    console.log('Days to add:', daysToAdd);
+  
+    const nextWeekday = new Date(today);
+    nextWeekday.setDate(today.getDate() + daysToAdd); // Set the date to the next weekday
+    console.log('Next weekday:', nextWeekday.toLocaleDateString()); // Log the date of the next weekday
+  
+    return nextWeekday;
   }
+  
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {

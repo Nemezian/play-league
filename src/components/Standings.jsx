@@ -4,7 +4,6 @@ import { useAuth } from "../contexts/AuthContext"
 import Spinner from "./Spinner"
 import Alert from "./Alert"
 import { useNavigate, useParams } from "react-router-dom"
-import FormHeader from "./FormHeader"
 
 export default function Standings() {
   const {
@@ -92,6 +91,7 @@ export default function Standings() {
   }
 
   const handleScheduleGeneration = () => {
+    console.log("Generowanie meczy dla ligi: ", selectedLeague)
     generateMatchSchedule(selectedLeague)
       .then(() => {
         console.log("Mecze wygenerowane")
@@ -214,7 +214,6 @@ export default function Standings() {
                   <tbody className="bg-gray-800">
                     {standings.map(
                       (team, index) => (
-                        console.log("Drużyna ", index, ": ", team),
                         (
                           <tr
                             key={team.id}
@@ -264,49 +263,6 @@ export default function Standings() {
                         )
                       )
                     )}
-
-                    {/* 
-                  <tr className="bg-black bg-opacity-20">
-                    <td className="pl-4">1</td>
-                    <td className="flex px-6 py-4 whitespace-nowrap">
-                      <span className="ml-2 font-medium">Man United</span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">17</td>
-                    <td className="px-6 py-4 whitespace-nowrap">11</td>
-                    <td className="px-6 py-4 whitespace-nowrap">3</td>
-                    <td className="px-6 py-4 whitespace-nowrap">3</td>
-                    <td className="px-6 py-4 whitespace-nowrap">34</td>
-                    <td className="flex px-6 py-4 whitespace-nowrap">
-                      <LastFiveIcon type={"win"} />
-                      <LastFiveIcon type={"win"} />
-                      <LastFiveIcon type={"win"} />
-                      <LastFiveIcon type={"draw"} />
-                      <LastFiveIcon type={"win"} />
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="pl-4">2</td>
-                    <td className="flex px-6 py-4 whitespace-nowrap">
-                      <img
-                        className="w-5"
-                        src="https://ssl.gstatic.com/onebox/media/sports/logos/0iShHhASp5q1SL4JhtwJiw_48x48.png"
-                        alt=""
-                      />
-                      <span className="ml-2 font-medium">Liverpool</span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">17</td>
-                    <td className="px-6 py-4 whitespace-nowrap">9</td>
-                    <td className="px-6 py-4 whitespace-nowrap">6</td>
-                    <td className="px-6 py-4 whitespace-nowrap">2</td>
-                    <td className="px-6 py-4 whitespace-nowrap">33</td>
-                    <td className="flex px-6 py-4 whitespace-nowrap">
-                      <LastFiveIcon type={"lose"} />
-                      <LastFiveIcon type={"draw"} />
-                      <LastFiveIcon type={"draw"} />
-                      <LastFiveIcon type={"win"} />
-                      <LastFiveIcon type={"win"} />
-                    </td>
-                  </tr> */}
                   </tbody>
                 </table>
               )}

@@ -43,16 +43,16 @@ export default function TeamCreation() {
       .then((leagues) => {
         console.log("Leagues fetched", leagues)
         setLeagues(leagues)
-        for (let i = 0; i < leagues.length; i++) {
-          countLeagueTeams(leagues[i].id)
-            .then((countLeagueTeams) => {
-              setLeagueTeamCount((prev) => [...prev, countLeagueTeams])
-              console.log("League team count fetched", countLeagueTeams)
+        
+        leagues.forEach((league) => {
+          countLeagueTeams(league.id)
+            .then((count) => {
+              setLeagueTeamCount(count)
             })
             .catch((e) => {
-              console.error("An error occurred while fetching leagues", e)
+              console.error("An error occurred while counting league teams", e)
             })
-        }
+        })
       })
       .catch((e) => {
         console.error("An error occurred while fetching leagues", e)
@@ -72,6 +72,23 @@ export default function TeamCreation() {
     }
     if (userInfos.role === "member") {
       setError("Jesteś już członkiem drużyny!")
+      setLoading(false)
+      return
+    }
+    if (leagueTeamCount >= 10) {
+      setError("Liga jest pełna")
+      setLoading(false)
+      return
+    }
+    
+    if (nameRef.current.value.trim() === "") {
+      setError("Nazwa drużyny nie może być pusta")
+      setLoading(false)
+      return
+    }
+
+    if (teamCodeRef.current.value.trim() === "") {
+      setError("Kod drużyny nie może być pusty")
       setLoading(false)
       return
     }
