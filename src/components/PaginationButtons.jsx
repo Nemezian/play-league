@@ -11,6 +11,7 @@ export default function PaginationButtons({
         onClick={() => handlePageChange(1)}
         disabled={currentPage === 1}
       >
+        {console.log("CurrentPage and totalPages: ", currentPage, totalPages)}
         {"<<"}
       </button>
       <button

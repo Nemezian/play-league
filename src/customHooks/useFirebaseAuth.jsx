@@ -19,6 +19,8 @@ import {
   deleteDoc,
 } from "firebase/firestore"
 import { get, set, update } from "firebase/database"
+import { RandomRoundRobin } from "round-robin-js"
+import { connectStorageEmulator } from "firebase/storage"
 
 export function useFirebaseAuth() {
   const [currentUser, setCurrentUser] = useState()
@@ -653,128 +655,190 @@ export function useFirebaseAuth() {
 
   // Function to generate a match schedule for teams in a league
   const generateMatchSchedule = async (leagueId) => {
+    const leagueRef = doc(firestore, "leagues", leagueId)
+    const teamsDocs = await getTeamsByLeagueId(leagueId)
+    const teams = teamsDocs.map((team) => team.teamName)
+    const matchSchedule = []
+    const reversedMatchSchedule = []
+    const weekdays = [
+      "monday",
+      "tuesday",
+      "wednesday",
+      "thursday",
+      "friday",
+      "saturday",
+      "sunday",
+    ]
+    const numTeams = teamsDocs.length
+    const numRounds = teamsDocs.length - 1
 
-      const leagueRef = doc(firestore, "leagues", leagueId)
-      const teams = await getTeamsByLeagueId(leagueId)
+    for (let round = 0; round < numRounds; round++) {
+      const roundMatches = []
+      const roundMatchesReversed = []
 
-      const matchSchedule = []
-      const weekdays = [
-        "monday",
-        "tuesday",
-        "wednesday",
-        "thursday",
-        "friday",
-        "saturday",
-        "sunday",
-      ]
+      for (let i = 0; i < numTeams / 2; i++) {
+        const homeTeam = teamsDocs[i]
+        const awayTeam = teamsDocs[numTeams - 1 - i]
+        const homeTeamRef = doc(
+          firestore,
+          "leagues",
+          leagueId,
+          "teams",
+          homeTeam.id
+        )
+        const awayTeamRef = doc(
+          firestore,
+          "leagues",
+          leagueId,
+          "teams",
+          awayTeam.id
+        )
+        const homeTeamName = homeTeam.teamName
+        const awayTeamName = awayTeam.teamName
 
-      // Determine the number of rounds needed for a round-robin schedule
-      const numTeams = teams.length
-      const numRounds = numTeams - 1
+        const matchDate = await getNextMatchDate(
+          homeTeam,
+          awayTeam,
+          weekdays,
+          round
+        )
 
-      // Generate matches for each round
-      for (let round = 0; round < numRounds; round++) {
-        const roundMatches = []
+        const matchDateReversed = await getNextMatchDate(
+          awayTeam,
+          homeTeam,
+          weekdays,
+          round + numRounds
+        )
 
-        // Determine matches for this round
-        for (let i = 0; i < numTeams / 2; i++) {
-          const homeTeamIndex = i;
-    const awayTeamIndex = (numRounds - i + round) % numRounds; // Rotate teams for each round
-    const homeTeam = teams[homeTeamIndex];
-    const awayTeam = teams[awayTeamIndex];
-
-    // Ensure home team is not the same as away team
-    if (homeTeam !== awayTeam) {
-      const matchDate = await getNextMatchDate(homeTeam, awayTeam, matchSchedule, weekdays, numTeams);
-
-        console.log("Match date: ", matchDate)
-          // Create a match object with home team, away team, and match date
-          const match = {
-            homeTeam: homeTeam.teamName,
-            awayTeam: awayTeam.teamName,
-            dateTime: matchDate,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            result: { homeScore: null, awayScore: null },
-            status: "upcoming",
-          }
-          roundMatches.push(match)
-
-          console.log("added match ", match, " to round ", round, " matches")
-          // await addDoc(collection(firestore, "leagues", leagueId, "schedule"), match)
+        // Create a match object with home team, away team, and match date
+        const match = {
+          homeTeam: homeTeamRef,
+          awayTeam: awayTeamRef,
+          homeTeamName: homeTeamName,
+          awayTeamName: awayTeamName,
+          dateTime: matchDate,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          result: { homeScore: null, awayScore: null },
+          status: "upcoming",
         }
+        console.log("Match: ", match)
+        const matchReversed = {
+          homeTeam: awayTeamRef,
+          awayTeam: homeTeamRef,
+          homeTeamName: awayTeamName,
+          awayTeamName: homeTeamName,
+          dateTime: matchDateReversed,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          result: { homeScore: null, awayScore: null },
+          status: "upcoming",
+        }
+        console.log("Match reversed: ", matchReversed)
+
+        roundMatches.push(match)
+        roundMatchesReversed.push(matchReversed)
+
+        // console.log("added match ", match, " to round ", round, " matches")
+        await addDoc(
+          collection(firestore, "leagues", leagueId, "schedule"),
+          match
+        )
+          .then(() => {
+            console.log("Document successfully written! schedule1")
+          })
+          .catch((error) => {
+            console.error("Error adding document schedule1: ", error)
+          })
+        await addDoc(
+          collection(firestore, "leagues", leagueId, "schedule"),
+          matchReversed
+        )
+          .then(() => {
+            console.log("Document successfully written! schedule2")
+          })
+          .catch((error) => {
+            console.error("Error adding document schedule2: ", error)
+          })
       }
 
-        matchSchedule.push(roundMatches)
+      teamsDocs.splice(1, 0, teamsDocs.pop())
+      matchSchedule.push(roundMatches)
+      reversedMatchSchedule.push(roundMatchesReversed)
+    }
 
-        // Rotate teams for the next round
-        teams.splice(1, 0, teams.pop())
-      }
+    // matchSchedule.push(...reversedMatchSchedule)
 
-      console.log("Match schedule: ", matchSchedule)
-
-  // await setDoc(leagueRef, { matchSchedule }, { merge: true })
-  // .then(() => {
-  //   console.log("Document successfully written!")
-  // }).catch((error) => {
-  //   console.error("Error adding document: ", error)
-  // })
-    
+    // console.log("Match schedule: ", matchSchedule)
   }
 
-  // Function to get the next available match date based on preferred weekdays
-  async function getNextMatchDate(homeTeam, awayTeam, matchSchedule, weekdays, teamsLength) {
-    
+  const getNextMatchDate = async (
+    homeTeam,
+    awayTeam,
+    weekdays,
+    currentRound
+  ) => {
     let preferredMatchDays = homeTeam.preferredMatchDays.concat(
       awayTeam.preferredMatchDays
     )
 
-    if(preferredMatchDays.length === 0) {
+    if (preferredMatchDays.length === 0) {
       preferredMatchDays = weekdays
     }
 
-    const matchesPerWeekday = {}
-
-    // Count existing matches scheduled for each weekday
-    matchSchedule.forEach((roundMatches) => {
-      roundMatches.forEach((match) => {
-        const matchWeekday = match.dateTime.getDay()
-        matchesPerWeekday[matchWeekday] =
-          (matchesPerWeekday[matchWeekday] || 0) + 1
-      })
-    })
-
-    // Find the first available weekday for the match
-    let nextMatchDate
+    // Count the number of weekdays in the preferred match days and sort them by index
+    const weekdayCounts = {}
     for (const weekday of preferredMatchDays) {
       const weekdayIndex = weekdays.indexOf(weekday)
-      const matchCount = matchesPerWeekday[weekdayIndex] || 0
-      if (matchCount < teamsLength / 2) {
-        nextMatchDate = await getNextWeekday(weekdayIndex)
-        break
+      if (weekdayCounts[weekdayIndex]) {
+        weekdayCounts[weekdayIndex]++
+      } else {
+        weekdayCounts[weekdayIndex] = 1
       }
     }
 
+    // Sort the weekdays by count in descending order
+    preferredMatchDays.sort((a, b) => {
+      const countA = weekdayCounts[weekdays.indexOf(a)]
+      const countB = weekdayCounts[weekdays.indexOf(b)]
+      return countB - countA
+    })
+
+    // Calculate the number of weeks to add based on the current round number
+    const weeksToAdd = currentRound
+
+    // Find the first available weekday for the match  in the next week
+    let nextMatchDate
+    for (const weekday of preferredMatchDays) {
+      const weekdayIndex = weekdays.indexOf(weekday)
+      nextMatchDate = await getNextWeekday(weekdayIndex, weeksToAdd)
+      break
+    }
+
+    console.log("Next match date: ", nextMatchDate)
     return nextMatchDate
   }
 
-  // Function to get the next weekday date based on the current day
-  async function getNextWeekday(weekdayIndex) {
-    const today = new Date();
-    const currentDay = today.getDay(); // Get the current day index (0 for Sunday, 1 for Monday, ..., 6 for Saturday)
-    console.log('Current day index:', currentDay);
-  
-    let daysToAdd = (weekdayIndex + 7 - currentDay) % 7; // Calculate the number of days to add to reach the desired weekday
-    if (daysToAdd === 0) daysToAdd = 7; // If it's already the preferred weekday, schedule for the next week
-    console.log('Days to add:', daysToAdd);
-  
-    const nextWeekday = new Date(today);
-    nextWeekday.setDate(today.getDate() + daysToAdd); // Set the date to the next weekday
-    console.log('Next weekday:', nextWeekday.toLocaleDateString()); // Log the date of the next weekday
-  
-    return nextWeekday;
+  const getNextWeekday = async (weekdayIndex, weeksToAdd) => {
+    console.log("Weekday index: ", weekdayIndex)
+    console.log("Weeks to add: ", weeksToAdd)
+    const today = new Date()
+    const currentDay = (today.getDay() + 6) % 7 // Adjust current day index to start from Monday (0 for Monday, 1 for Tuesday, ..., 6 for Sunday)
+    console.log("Current day: ", currentDay)
+
+    let daysToAdd = weekdayIndex + 7 - currentDay // Calculate the number of days to add to reach the desired weekday
+    console.log("Days to add: ", daysToAdd)
+
+    // Adjust days to add based on the number of weeks to add
+    daysToAdd += weeksToAdd * 7
+
+    const nextWeekday = new Date(today)
+    nextWeekday.setDate(today.getDate() + daysToAdd) // Set the date to the next weekday
+    nextWeekday.setHours(18, 0, 0, 0)
+
+    console.log("Next weekday: ", nextWeekday)
+    return nextWeekday
   }
-  
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {

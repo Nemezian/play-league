@@ -10,6 +10,7 @@ import ReactModal from "react-modal"
 import PaginationButtons from "./PaginationButtons"
 import MatchList from "./MatchList"
 import { AiOutlineClose } from "react-icons/ai"
+import { set } from "firebase/database"
 
 export default function TeamManagement() {
   const [teamData, setTeamData] = useState(null)
@@ -49,6 +50,7 @@ export default function TeamManagement() {
   const [pageSizeMatches] = useState(5) // You can adjust the page size here
   const [totalPagesMatches, setTotalPagesMatches] = useState(0)
   const [modalIsOpen, setIsOpen] = useState(false)
+  const [paginationLoading, setPaginationLoading] = useState(true)
 
   const fixedInputClass =
     "rounded-lg appearance-none  mb-2 block w-full p-1.5 md:p-2.5 px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-fourth focus:border-fourth focus:z-10 sm:text-sm"
@@ -93,11 +95,14 @@ export default function TeamManagement() {
   }, [preferredMatchDays])
 
   useEffect(() => {
+    setLoading(true)
     if (teamData && teamData.players.length > 0) {
       const total = Math.ceil(teamData.players.length / pageSize)
       setTotalPages(total)
+      setLoading(false)
     } else {
       setTotalPages(1)
+      setLoading(false)
     }
   }, [teamData, pageSize])
 
@@ -117,11 +122,16 @@ export default function TeamManagement() {
   }, [userInfos, userInfoLoading])
 
   useEffect(() => {
+    setPaginationLoading(true)
+    console.log("Team matches", teamMatches)
+    if (teamMatches) console.log("Team matches length", teamMatches.length)
     if (teamMatches && teamMatches.length > 0) {
       const total = Math.ceil(teamMatches.length / pageSizeMatches)
+      console.log("Team matches", teamMatches)
+      console.log("Page size matches", pageSizeMatches)
+      console.log("Total pages matches", total)
       setTotalPagesMatches(total)
-    } else {
-      setTotalPagesMatches(1)
+      setPaginationLoading(false)
     }
   }, [teamMatches, pageSizeMatches])
 
@@ -331,8 +341,8 @@ export default function TeamManagement() {
               )}
             </div>
             <PaginationButtons
-              handlePageChange={handlePageChangeMatches}
-              currentPage={currentPageMatches}
+              handlePageChange={handlePageChange}
+              currentPage={currentPage}
               totalPages={totalPages}
               className="flex justify-center mt-4"
             />
@@ -358,12 +368,14 @@ export default function TeamManagement() {
                 </p>
               )}
             </div>
-            <PaginationButtons
-              handlePageChange={handlePageChange}
-              currentPage={currentPage}
-              totalPages={totalPagesMatches}
-              className="flex justify-center mt-4"
-            />
+            {teamMatches && teamMatches.length > 0 && !paginationLoading && (
+              <PaginationButtons
+                handlePageChange={handlePageChangeMatches}
+                currentPage={currentPageMatches}
+                totalPages={totalPagesMatches}
+                className="flex justify-center mt-4"
+              />
+            )}
           </div>
         )}
         {renderedComponent === "info" && (
