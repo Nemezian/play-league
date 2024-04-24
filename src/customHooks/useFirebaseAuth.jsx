@@ -18,9 +18,8 @@ import {
   addDoc,
   deleteDoc,
 } from "firebase/firestore"
-import { get, set, update } from "firebase/database"
-import { RandomRoundRobin } from "round-robin-js"
-import { connectStorageEmulator } from "firebase/storage"
+import * as X from "firebase/functions"
+
 
 export function useFirebaseAuth() {
   const [currentUser, setCurrentUser] = useState()
@@ -398,7 +397,7 @@ export function useFirebaseAuth() {
     }
   }
 
-  const getTeamSchedule = async (teamRef, sortByDateTime = false) => {
+  const getTeamSchedule = async (teamRef, sortByRound = false) => {
     const leagueId = teamRef.path.split("/")[1]
     const scheduleColRef = collection(
       firestore,
@@ -422,29 +421,20 @@ export function useFirebaseAuth() {
         docData.homeTeam.path === teamRef.path ||
         docData.awayTeam.path === teamRef.path
       ) {
-        getTeamDataByReference(docData.homeTeam)
+        await getTeamDataByReference(docData.homeTeam)
           .then((homeTeamData) => {
-            getTeamDataByReference(docData.awayTeam)
-              .then((awayTeamData) => {
-                const matchData = {
-                  id: document.id,
-                  ...docData,
-                  timestampDay: docData.dateTime.toDate().toLocaleDateString(),
-                  timestampHour: docData.dateTime
-                    .toDate()
-                    .toLocaleTimeString("en-GB", { timeZone: "Europe/Warsaw" }),
-                  timestampTest: docData.dateTime.toDate(),
-                  homeTeamName: homeTeamData.teamName,
-                  awayTeamName: awayTeamData.teamName,
-                }
-                fetchedMatches.push(matchData)
-              })
-              .catch((error) => {
-                console.error(
-                  "An error occurred while fetching away team data",
-                  error
-                )
-              })
+            const homeTeamName = homeTeamData.teamName
+            const matchData = {
+              id: document.id,
+              ...docData,
+              homeTeamName: homeTeamName,
+              timestampDay: docData.dateTime.toDate().toLocaleDateString(),
+              timestampHour: docData.dateTime
+                .toDate()
+                .toLocaleTimeString("en-GB", { timeZone: "Europe/Warsaw" }),
+              timestampTest: docData.dateTime.toDate(),
+            }
+            fetchedMatches.push(matchData)
           })
           .catch((error) => {
             console.error(
@@ -454,12 +444,16 @@ export function useFirebaseAuth() {
           })
       }
     }
-    if (sortByDateTime) {
-      fetchedMatches.sort((a, b) => {
-        const dateTimeA = new Date(a.dateTime).getTime()
-        const dateTimeB = new Date(b.dateTime).getTime()
-        return dateTimeA - dateTimeB
-      })
+    console.log("Fetched matches: ", fetchedMatches)
+    console.log("Fetched matches length: ", fetchedMatches.length)
+
+    //sort by round number
+    if (sortByRound
+      && fetchedMatches.length > 0) {
+      const sortedMatches = fetchedMatches.sort((a, b) => a.roundNo - b.roundNo)
+      console.log("Schedules found in the database and sorted!", sortedMatches)
+      setScheduleLoading(false)
+      return sortedMatches
     }
     setScheduleLoading(false)
     console.log("Schedules found in the database!", fetchedMatches)
@@ -467,19 +461,23 @@ export function useFirebaseAuth() {
   }
 
   const deleteTeam = async (teamRef) => {
+    setUserInfoLoading(true)
     await deleteDoc(teamRef)
       .then(() => {
         console.log("Document successfully deleted!")
-        updateUserRolesAfterTeamDelete(teamRef)
-        deleteTeamStandingsRecord(teamRef)
-        getUserInfo(currentUser.uid).then(
-          (info) => setUserInfos(info),
-          setUserInfoLoading(false)
-        )
       })
       .catch((error) => {
         console.error("Error removing document: ", error)
+        setUserInfoLoading(false)
+        return
       })
+      await updateUserRolesAfterTeamDelete(teamRef)
+        
+      await deleteTeamStandingsRecord(teamRef)
+      await  getUserInfo(currentUser.uid).then(
+          (info) => setUserInfos(info),
+          setUserInfoLoading(false)
+        )
   }
 
   const deleteTeamStandingsRecord = async (teamRef) => {
@@ -712,6 +710,7 @@ export function useFirebaseAuth() {
 
         // Create a match object with home team, away team, and match date
         const match = {
+          roundNo: round + 1,
           homeTeam: homeTeamRef,
           awayTeam: awayTeamRef,
           homeTeamName: homeTeamName,
@@ -724,6 +723,7 @@ export function useFirebaseAuth() {
         }
         console.log("Match: ", match)
         const matchReversed = {
+          roundNo: round + numRounds + 1,
           homeTeam: awayTeamRef,
           awayTeam: homeTeamRef,
           homeTeamName: awayTeamName,
@@ -766,10 +766,6 @@ export function useFirebaseAuth() {
       matchSchedule.push(roundMatches)
       reversedMatchSchedule.push(roundMatchesReversed)
     }
-
-    // matchSchedule.push(...reversedMatchSchedule)
-
-    // console.log("Match schedule: ", matchSchedule)
   }
 
   const getNextMatchDate = async (

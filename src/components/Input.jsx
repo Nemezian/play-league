@@ -12,7 +12,7 @@ const Input = React.forwardRef((props, ref) => {
     autoComplete,
     isRequired = false,
     placeholder,
-    customClass,
+    customClass= "",
   } = props
 
   const fixedInputClass =

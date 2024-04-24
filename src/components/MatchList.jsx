@@ -11,8 +11,7 @@ export default function MatchList({
   pageSize = 10,
   currentTeamName,
 }) {
-  const { getTeamSchedule, scheduleLoading } = useAuth()
-  const [matchesData, setMatchesData] = useState(null)
+  const { scheduleLoading } = useAuth()
   const [loading, setLoading] = useState(true)
   const [highlightTeam, setHighlightTeam] = useState(null)
 
@@ -46,28 +45,40 @@ export default function MatchList({
         <div className={listClassName}>
           {paginatedData.map((match, index) => (
             <div key={index} className={itemsClassName}>
-              <p className="text-center text-white text-sm">
+              <div className="flex flex-row items-center justify-between">
+              <div className="text-start w-1/3 text-sm">
+                <span>{match.roundNo}</span>
+                <span>. kolejka</span>
+                </div>
+              <div className="text-center w-1/3 text-sm">
                 {match.timestampDay} {match.timestampHour}
-              </p>
+              </div>
+              <div className="text-end w-1/3 text-sm">
+                <span > {match.status === "upcoming" ? "Mecz nadchodzący" :
+                  match.status === "finished" ? "Mecz zakończony" :
+                  match.status === 'notPlayed' ? "Mecz nierozegrany": ""}</span>  
+                </div>
+                </div>
               <div className="flex flex-row  items-center justify-between text-xl font-bold">
                 <span
                   className={
-                    highlightTeam === match.homeTeamName ? "text-fourth" : ""
-                  }
-                >
+                    highlightTeam === match.homeTeamName ? "text-fourth w-1/3" : "w-1/3"
+                  }>
                   {match.homeTeamName}
                 </span>
-                <span> vs </span>
+              <div className="w-1/3 text-center">
+                <span className="text-ultrabold text-2xl">{match.result.homeScore || "-"}</span>
+                <span> : </span>
+                <span className="text-ultrabold text-2xl">{match.result.awayScore || "-"}</span>
+              </div>
                 <span
                   className={
-                    highlightTeam === match.awayTeamName ? "text-fourth" : ""
+                    highlightTeam === match.awayTeamName ? "text-fourth text-end w-1/3" : " text-end w-1/3"
                   }
                 >
                   {match.awayTeamName}
                 </span>
               </div>
-              {/* <p className="text-white">{match.dateTime}</p> */}
-              {/* <p className="text-white">{match.location}</p> */}
             </div>
           ))}
         </div>

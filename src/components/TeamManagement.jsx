@@ -10,7 +10,6 @@ import ReactModal from "react-modal"
 import PaginationButtons from "./PaginationButtons"
 import MatchList from "./MatchList"
 import { AiOutlineClose } from "react-icons/ai"
-import { set } from "firebase/database"
 
 export default function TeamManagement() {
   const [teamData, setTeamData] = useState(null)
@@ -50,7 +49,6 @@ export default function TeamManagement() {
   const [pageSizeMatches] = useState(5) // You can adjust the page size here
   const [totalPagesMatches, setTotalPagesMatches] = useState(0)
   const [modalIsOpen, setIsOpen] = useState(false)
-  const [paginationLoading, setPaginationLoading] = useState(true)
 
   const fixedInputClass =
     "rounded-lg appearance-none  mb-2 block w-full p-1.5 md:p-2.5 px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-fourth focus:border-fourth focus:z-10 sm:text-sm"
@@ -95,21 +93,18 @@ export default function TeamManagement() {
   }, [preferredMatchDays])
 
   useEffect(() => {
-    setLoading(true)
     if (teamData && teamData.players.length > 0) {
       const total = Math.ceil(teamData.players.length / pageSize)
       setTotalPages(total)
-      setLoading(false)
     } else {
       setTotalPages(1)
-      setLoading(false)
     }
   }, [teamData, pageSize])
 
   useEffect(() => {
     console.log("Team matches effect", userInfos, userInfoLoading)
     if (userInfos) {
-      getTeamSchedule(userInfos.teamId)
+      getTeamSchedule(userInfos.teamId, true)
         .then((data) => {
           setTeamMatches(data)
           console.log("Team matches fetched", data)
@@ -122,23 +117,21 @@ export default function TeamManagement() {
   }, [userInfos, userInfoLoading])
 
   useEffect(() => {
-    setPaginationLoading(true)
-    console.log("Team matches", teamMatches)
-    if (teamMatches) console.log("Team matches length", teamMatches.length)
     if (teamMatches && teamMatches.length > 0) {
       const total = Math.ceil(teamMatches.length / pageSizeMatches)
-      console.log("Team matches", teamMatches)
-      console.log("Page size matches", pageSizeMatches)
-      console.log("Total pages matches", total)
       setTotalPagesMatches(total)
-      setPaginationLoading(false)
     }
   }, [teamMatches, pageSizeMatches])
 
   const handleDeleteTeam = () => {
     setError("")
 
-    console.log("Deleting team", userInfos.teamId)
+
+    if(teamMatches && teamMatches.length > 0) {
+      setError("Nie można usunąć drużyny, która ma zaplanowane mecze")
+      return
+    }
+
     deleteTeam(userInfos.teamId)
       .then(() =>
         navigate("/", { state: { message: "Drużyna została usunięta" } })
@@ -368,7 +361,7 @@ export default function TeamManagement() {
                 </p>
               )}
             </div>
-            {teamMatches && teamMatches.length > 0 && !paginationLoading && (
+            {teamMatches && (
               <PaginationButtons
                 handlePageChange={handlePageChangeMatches}
                 currentPage={currentPageMatches}
