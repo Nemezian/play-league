@@ -18,8 +18,6 @@ import {
   addDoc,
   deleteDoc,
 } from "firebase/firestore"
-import * as X from "firebase/functions"
-
 
 export function useFirebaseAuth() {
   const [currentUser, setCurrentUser] = useState()
@@ -27,6 +25,7 @@ export function useFirebaseAuth() {
   const [loading, setLoading] = useState(true)
   const [userInfoLoading, setUserInfoLoading] = useState(true)
   const [scheduleLoading, setScheduleLoading] = useState(true)
+  const [globalTeamSchedule, setGlobalTeamSchedule] = useState()
 
   const signup = (email, password, firstName, lastName) =>
     createUserWithEmailAndPassword(auth, email, password).then(
@@ -444,19 +443,13 @@ export function useFirebaseAuth() {
           })
       }
     }
-    console.log("Fetched matches: ", fetchedMatches)
-    console.log("Fetched matches length: ", fetchedMatches.length)
 
-    //sort by round number
-    if (sortByRound
-      && fetchedMatches.length > 0) {
+    if (sortByRound && fetchedMatches.length > 0) {
       const sortedMatches = fetchedMatches.sort((a, b) => a.roundNo - b.roundNo)
-      console.log("Schedules found in the database and sorted!", sortedMatches)
       setScheduleLoading(false)
       return sortedMatches
     }
     setScheduleLoading(false)
-    console.log("Schedules found in the database!", fetchedMatches)
     return fetchedMatches
   }
 
@@ -471,13 +464,135 @@ export function useFirebaseAuth() {
         setUserInfoLoading(false)
         return
       })
-      await updateUserRolesAfterTeamDelete(teamRef)
-        
-      await deleteTeamStandingsRecord(teamRef)
-      await  getUserInfo(currentUser.uid).then(
-          (info) => setUserInfos(info),
-          setUserInfoLoading(false)
-        )
+    await updateUserRolesAfterTeamDelete(teamRef)
+
+    await deleteTeamStandingsRecord(teamRef)
+    await getUserInfo(currentUser.uid).then(
+      (info) => setUserInfos(info),
+      setUserInfoLoading(false)
+    )
+  }
+
+  const updateTeamStandings = async (matchRef, homeScore, awayScore) => {
+    const leagueId = matchRef.path.split("/")[1]
+    const matchData = await getDoc(matchRef)
+    const matchDocData = matchData.data()
+    const homeTeamRef = matchDocData.homeTeam
+    const awayTeamRef = matchDocData.awayTeam
+    const homeTeamData = await getTeamDataByReference(homeTeamRef)
+    const awayTeamData = await getTeamDataByReference(awayTeamRef)
+    const homeTeamStandingsRef = doc(
+      firestore,
+      "leagues",
+      leagueId,
+      "standings",
+      homeTeamRef.id
+    )
+    const awayTeamStandingsRef = doc(
+      firestore,
+      "leagues",
+      leagueId,
+      "standings",
+      awayTeamRef.id
+    )
+
+    const homeTeamStandingsData = await getDoc(homeTeamStandingsRef)
+    const awayTeamStandingsData = await getDoc(awayTeamStandingsRef)
+
+    const homeTeamStandingsDocData = homeTeamStandingsData.data()
+    const awayTeamStandingsDocData = awayTeamStandingsData.data()
+
+    const homeTeamMatchData = {
+      points: homeTeamStandingsDocData.points,
+      wins: homeTeamStandingsDocData.wins,
+      draws: homeTeamStandingsDocData.draws,
+      losses: homeTeamStandingsDocData.losses,
+      matchesPlayed: homeTeamStandingsDocData.matchesPlayed,
+      lastFive: homeTeamStandingsDocData.lastFive,
+    }
+
+    const awayTeamMatchData = {
+      points: awayTeamStandingsDocData.points,
+      wins: awayTeamStandingsDocData.wins,
+      draws: awayTeamStandingsDocData.draws,
+      losses: awayTeamStandingsDocData.losses,
+      matchesPlayed: awayTeamStandingsDocData.matchesPlayed,
+      lastFive: awayTeamStandingsDocData.lastFive,
+    }
+
+    homeTeamMatchData.matchesPlayed++
+    awayTeamMatchData.matchesPlayed++
+
+    if (homeScore > awayScore) {
+      homeTeamMatchData.points += 3
+      homeTeamMatchData.wins++
+      awayTeamMatchData.losses++
+    } else if (homeScore < awayScore) {
+      awayTeamMatchData.points += 3
+      awayTeamMatchData.wins++
+      homeTeamMatchData.losses++
+    } else {
+      homeTeamMatchData.points++
+      awayTeamMatchData.points++
+      homeTeamMatchData.draws++
+      awayTeamMatchData.draws++
+    }
+
+    //assign at first index, if its taken, shift all elements to the right and then add new element {"win", "draw", "loss"}
+    homeTeamMatchData.lastFive.unshift(
+      homeScore > awayScore ? "win" : homeScore === awayScore ? "draw" : "loss"
+    )
+    if (homeTeamMatchData.lastFive.length > 5) {
+      homeTeamMatchData.lastFive.pop()
+    }
+    awayTeamMatchData.lastFive.unshift(
+      homeScore < awayScore ? "win" : homeScore === awayScore ? "draw" : "loss"
+    )
+    if (awayTeamMatchData.lastFive.length > 5) {
+      awayTeamMatchData.lastFive.pop()
+    }
+
+    await setDoc(homeTeamStandingsRef, homeTeamMatchData, { merge: true })
+      .then(() => {
+        console.log("Document successfully written!")
+      })
+      .catch((error) => {
+        console.error("Error adding document: ", error)
+      })
+
+    await setDoc(awayTeamStandingsRef, awayTeamMatchData, { merge: true })
+      .then(() => {
+        console.log("Document successfully written!")
+      })
+      .catch((error) => {
+        console.error("Error adding document: ", error)
+      })
+  }
+
+  const updateMatchScore = async (
+    matchId,
+    leagueId,
+    homeScore,
+    awayScore,
+    status = "finished"
+  ) => {
+    const matchRef = doc(firestore, "leagues", leagueId, "schedule", matchId)
+    const matchData = {
+      result: {
+        homeScore: homeScore,
+        awayScore: awayScore,
+      },
+      status: status,
+    }
+    await setDoc(matchRef, matchData, { merge: true })
+      .then(() => {
+        console.log("Document successfully written!")
+      })
+      .catch((error) => {
+        console.error("Error adding document: ", error)
+      })
+
+    await updateTeamStandings(matchRef, homeScore, awayScore)
   }
 
   const deleteTeamStandingsRecord = async (teamRef) => {
@@ -886,5 +1001,6 @@ export function useFirebaseAuth() {
     countLeagueTeams,
     generateMatchSchedule,
     deleteAllMatchesButFirst,
+    updateMatchScore,
   }
 }

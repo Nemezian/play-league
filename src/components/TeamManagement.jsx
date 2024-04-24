@@ -49,6 +49,7 @@ export default function TeamManagement() {
   const [pageSizeMatches] = useState(5) // You can adjust the page size here
   const [totalPagesMatches, setTotalPagesMatches] = useState(0)
   const [modalIsOpen, setIsOpen] = useState(false)
+  const [leagueId, setLeagueId] = useState("")
 
   const fixedInputClass =
     "rounded-lg appearance-none  mb-2 block w-full p-1.5 md:p-2.5 px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-fourth focus:border-fourth focus:z-10 sm:text-sm"
@@ -70,7 +71,11 @@ export default function TeamManagement() {
       getTeamDataByReference(userInfos.teamId)
         .then((data) => {
           setTeamData(data)
-          console.log("Team data fetched", data)
+
+          const refPath = userInfos.teamId.path
+          const leagueId = refPath.split("/")[1]
+          setLeagueId(leagueId)
+          console.log("League ID", leagueId)
         })
         .catch((error) => {
           console.error("An error occurred while fetching team data", error)
@@ -126,8 +131,7 @@ export default function TeamManagement() {
   const handleDeleteTeam = () => {
     setError("")
 
-
-    if(teamMatches && teamMatches.length > 0) {
+    if (teamMatches && teamMatches.length > 0) {
       setError("Nie można usunąć drużyny, która ma zaplanowane mecze")
       return
     }
@@ -347,13 +351,15 @@ export default function TeamManagement() {
               <h1 className="font-bold text-lg pb-2 flex justify-center items-center">
                 <span>Lista meczów</span>
               </h1>
-              {teamMatches && teamData && teamMatches.length > 0 ? (
+              {teamMatches && teamData && leagueId && teamMatches.length > 0 ? (
                 <MatchList
                   matches={teamMatches}
-                  itemsClassName="flex flex-col justify-center  mb-1 bg-gray-300/[.2] p-1 rounded-md"
+                  itemsClassName="flex flex-col justify-center w-11/12 mb-1 bg-gray-300/[.2] p-1 rounded-md"
                   page={currentPageMatches}
                   pageSize={pageSizeMatches}
                   currentTeamName={teamData.teamName}
+                  actionButtons={true}
+                  leagueId={leagueId}
                 />
               ) : (
                 <p className="text-red-700 text-base text-center ">

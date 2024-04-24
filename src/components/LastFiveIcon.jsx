@@ -1,6 +1,6 @@
 export default function LastFiveIcon({ type }) {
   const iconTypes = {
-    lose: (
+    loss: (
       <svg
         className="w-4 fill-current text-red-500"
         xmlns="http://www.w3.org/2000/svg"
