@@ -7,11 +7,8 @@ import { useNavigate, useParams } from "react-router-dom"
 
 export default function Standings() {
   const {
-    userInfos,
     getLeagueStandings,
     getLeagues,
-    generateMatchSchedule,
-    deleteAllMatchesButFirst,
   } = useAuth()
   const [standings, setStandings] = useState([])
   const [loading, setLoading] = useState(false)
@@ -22,7 +19,7 @@ export default function Standings() {
   const { leagueId } = useParams()
 
   const fixedInputClass =
-    "rounded-lg appearance-none  mb-2 block w-full p-1.5 md:p-2.5 px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-fourth focus:border-fourth focus:z-10 sm:text-sm"
+    "rounded-lg appearance-none bg-secondary  mb-2 block w-full p-1.5 md:p-2.5 px-3 py-2 border border-gray-500 placeholder-gray-500 text-white focus:outline-none focus:ring-fourth focus:border-fourth focus:z-10 sm:text-sm"
 
   useEffect(() => {
     // Fetch leagues from Firestore
@@ -90,27 +87,6 @@ export default function Standings() {
     navigate(`/standings/${e.target.value}`)
   }
 
-  const handleScheduleGeneration = () => {
-    console.log("Generowanie meczy dla ligi: ", selectedLeague)
-    generateMatchSchedule(selectedLeague)
-      .then(() => {
-        console.log("Mecze wygenerowane")
-      })
-      .catch((e) => {
-        console.error("An error occurred while generating matches", e)
-      })
-  }
-
-  const handleDeleteMatches = () => {
-    deleteAllMatchesButFirst(selectedLeague)
-      .then(() => {
-        console.log("Mecze usunięte")
-      })
-      .catch((e) => {
-        console.error("An error occurred while deleting matches", e)
-      })
-  }
-
   const handleTeamClick = (team) => {
     navigate(`/team/${selectedLeague}/${team}`)
   }
@@ -138,22 +114,7 @@ export default function Standings() {
             </option>
           ))}
         </select>
-        <button
-          className="block rounded py-2 px-2 hover:bg-red-700 bg-red-500 w-full mb-1"
-          onClick={handleScheduleGeneration}
-        >
-          <span className="text-xs sm:text-sm lg:text-base">
-            Test generowania meczy
-          </span>
-        </button>
-        <button
-          className="block rounded py-2 px-2 hover:bg-red-700 bg-red-500 w-full mb-1"
-          onClick={handleDeleteMatches}
-        >
-          <span className="text-xs sm:text-sm lg:text-base">
-            Test usuwania meczy
-          </span>
-        </button>
+        
       </div>
       {error && <Alert message={error} type="error" />}
       <div className="flex flex-col mt-6">

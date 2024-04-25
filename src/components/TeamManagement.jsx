@@ -52,7 +52,7 @@ export default function TeamManagement() {
   const [leagueId, setLeagueId] = useState("")
 
   const fixedInputClass =
-    "rounded-lg appearance-none  mb-2 block w-full p-1.5 md:p-2.5 px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-fourth focus:border-fourth focus:z-10 sm:text-sm"
+    "rounded-lg appearance-none bg-secondary  mb-2 block w-full p-1.5 md:p-2.5 px-3 py-2 border border-gray-500 placeholder-gray-500 text-white focus:outline-none focus:ring-fourth focus:border-fourth focus:z-10 sm:text-sm"
 
   if (userInfoLoading) {
     return <Spinner />
@@ -284,7 +284,7 @@ export default function TeamManagement() {
             onClick={() => handleComponentChange("info")}
           >
             <span className="text-xs sm:text-sm lg:text-base">
-              Edytuj informacje
+              Edytuj
             </span>
           </button>
           <button
@@ -312,7 +312,7 @@ export default function TeamManagement() {
             onClick={openModal}
           >
             <span className="text-xs sm:text-sm lg:text-base">
-              Usuń drużynę
+              Usuń
             </span>
           </button>
         </nav>
@@ -383,14 +383,17 @@ export default function TeamManagement() {
             className="w-full h-full flex flex-col justify-between"
           >
             {/* <AiOutlineEdit className="text-4xl text-fourth mb-4" /> */}
+            {teamData && (
+                
             <div>
+            
               <label
                 htmlFor="team-name"
-                className="block mb-1 text-xs font-medium text-white"
+                className="block mb-1 text-xs font-medium text-white "
               >
                 Nazwa drużyny
               </label>
-              {teamData && (
+              
                 <input
                   type="text"
                   id="team-name"
@@ -399,14 +402,12 @@ export default function TeamManagement() {
                   ref={nameRef}
                   className={fixedInputClass}
                 />
-              )}
               <label
                 htmlFor="team-join-password"
                 className="block mb-1 text-xs font-medium text-white"
               >
                 Kod dołączenia
               </label>
-              {teamData && (
                 <input
                   type="text"
                   id="team-join-password"
@@ -415,14 +416,12 @@ export default function TeamManagement() {
                   ref={joinPasswordRef}
                   onChange={handleChange}
                 />
-              )}
               <label
                 htmlFor="team-description"
                 className="block mb-1 text-xs font-medium text-white"
               >
                 Opis drużyny
               </label>
-              {teamData && (
                 <textarea
                   id="team-description"
                   name="team-description"
@@ -435,8 +434,8 @@ export default function TeamManagement() {
                   cols={30}
                   ref={descriptionRef}
                 ></textarea>
-              )}
             </div>
+          )}
             <FormAction disabled={loading} text="Zapisz zmiany" />
           </form>
         )}

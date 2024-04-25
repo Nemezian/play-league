@@ -11,6 +11,7 @@ import {
   TeamDashboardPage,
   PageNotFound,
   StandingsPage,
+  AdministratorDashboardPage,
 } from "../pages"
 
 const routes = [
@@ -74,6 +75,14 @@ const routes = [
     element: (
       <PrivateRoute>
         <StandingsPage />
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: "/administrator-dashboard",
+    element: (
+      <PrivateRoute allowedRoles={["administrator"]} navigateTo={"*"}>
+        <AdministratorDashboardPage />
       </PrivateRoute>
     ),
   },

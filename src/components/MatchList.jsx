@@ -1,10 +1,9 @@
 import { useEffect, useState, useRef } from "react"
 import { useAuth } from "../contexts/AuthContext"
 import Spinner from "./Spinner"
-import { AiFillEdit, AiOutlineClose } from "react-icons/ai"
+import { AiFillEdit, AiOutlineClose, AiFillFlag  } from "react-icons/ai"
 import ReactModal from "react-modal"
 import Alert from "./Alert"
-import { set } from "firebase/database"
 
 export default function MatchList({
   matches,
@@ -21,6 +20,7 @@ export default function MatchList({
   const [loading, setLoading] = useState(true)
   const [highlightTeam, setHighlightTeam] = useState(null)
   const [modalIsOpen, setIsOpen] = useState(false)
+  const [walkoverModalIsOpen, setWalkoverModalIsOpen] = useState(false)
   const [error, setError] = useState("")
   const [editedMatch, setEditedMatch] = useState("")
   const homeScoreRef = useRef()
@@ -44,6 +44,21 @@ export default function MatchList({
     setError("")
     setMessage("")
   }
+
+  const openWalkoverModal = (e) => {
+    setWalkoverModalIsOpen(true)
+    setEditedMatch(e)
+  }
+
+  const closeWalkoverModal = () => {
+    setWalkoverModalIsOpen(false)
+    setEditedMatch("")
+    setError("")
+    setMessage("")
+  }
+
+
+
 
   useEffect(() => {
     setLoading(true)
@@ -172,7 +187,8 @@ export default function MatchList({
           editedMatch.id,
           leagueId,
           match.homeScore,
-          match.awayScore
+          match.awayScore,
+          "walkover"
         )
           .then(() => {
             setMessage("Wynik meczu został zapisany")
@@ -192,14 +208,14 @@ export default function MatchList({
         homeScore: 3,
         awayScore: 0,
       }
-      console.log(leagueId, editedMatch.id, match.homeScore, match.awayScore)
 
       if (leagueId) {
         updateMatchScore(
           editedMatch.id,
           leagueId,
           match.homeScore,
-          match.awayScore
+          match.awayScore,
+          "walkover"
         )
           .then(() => {
             setMessage("Wynik meczu został zapisany")
@@ -215,6 +231,7 @@ export default function MatchList({
           })
       }
     }
+  
   }
 
   if (loading) {
@@ -304,6 +321,48 @@ export default function MatchList({
           </ReactModal>
         </>
       )}
+      {editedMatch !== "" && (
+        <>
+          <ReactModal
+            isOpen={walkoverModalIsOpen}
+            shouldCloseOnOverlayClick={true}
+            onRequestClose={closeWalkoverModal}
+            className=" bg-secondary rounded-lg p-4 top-1/2 left-1/2 absolute transform -translate-x-1/2 -translate-y-1/2 w-3/5 md:w-[400px]  h-auto z-50"
+          >
+            <div className="flex justify-end">
+              <button className="block" onClick={closeModal}>
+                <AiOutlineClose size={20} />
+              </button>
+            </div>
+            <div>
+              <div className="flex flex-col justify-center items-center">
+
+                {error && <Alert message={error} type="error" />}
+                {message && <Alert message={message} type="success" />}
+
+              </div>
+              
+              <div className="flex flex-row justify-center items-center">
+              <span className="text-white text-xl md:text-base text-center">Czy chcesz oddać mecz walkowerem?</span>
+                </div>
+                <div className="flex flex-row justify-center items-center">
+                  <button
+                    className="bg-fourth hover:bg-third text-white text-sm md:text-base mt-3 py-1 px-5 rounded"
+                    onClick={declareWalkover}
+                  >
+                    Tak
+                  </button>
+                  <button
+                    className="bg-red-500 hover:bg-red-700 text-white text-sm md:text-base ml-4 mt-3 py-1 px-5 rounded"
+                    onClick={closeWalkoverModal}
+                  >
+                    Nie
+                  </button>
+                </div>
+            </div>
+          </ReactModal>
+        </>
+      )}
       {paginatedData && (
         <div className={listClassName}>
           {paginatedData.map((match, index) => (
@@ -366,18 +425,28 @@ export default function MatchList({
                   </span>
                 </div>
               </div>
-              {actionButtons && match.status !== "finished" ? (
-                <div className="w-1/12 flex flex-col items-center justify-between">
+              <div className="w-1/12 flex flex-col items-center justify-between">
+              {actionButtons && match.status !== "finished" && match.status !== "walkover" ? (
+                <div className="flex flex-col md:flex-row justify-center items-center">
                   <button
-                    className="bg-fourth px-1 py-1 rounded-md"
+                    className="bg-fourth hover:bg-third px-1 py-1 ml-1 rounded-md"
                     onClick={(e) => openModal(match)}
                   >
                     <AiFillEdit />
                   </button>
+                  <button
+                  className="bg-red-500 hover:bg-red-700 mt-1 md:mt-0 px-1 py-1 ml-1 rounded-md"
+                  onClick={(e) => openWalkoverModal(match)}
+                >
+                  <AiFillFlag />
+                </button>
                 </div>
               ) : (
-                <div className="w-1/12 flex flex-col items-center justify-between"></div>
+                ""
+                
               )}
+
+            </div>
             </div>
           ))}
         </div>

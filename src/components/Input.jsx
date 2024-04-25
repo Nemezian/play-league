@@ -16,7 +16,7 @@ const Input = React.forwardRef((props, ref) => {
   } = props
 
   const fixedInputClass =
-    "rounded-lg appearance-none  mb-2 block w-full p-1.5 md:p-2.5 px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-fourth focus:border-fourth focus:z-10 sm:text-sm"
+    "rounded-lg appearance-none bg-secondary  mb-2 block w-full p-1.5 md:p-2.5 px-3 py-2 border border-gray-500 placeholder-gray-300 text-white focus:outline-none focus:ring-fourth focus:border-fourth focus:z-10 sm:text-sm"
 
   return (
     <div>

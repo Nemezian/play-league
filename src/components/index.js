@@ -22,6 +22,7 @@ import PaginationButtons from "./PaginationButtons.jsx"
 import MatchList from "./MatchList.jsx"
 import Standings from "./Standings.jsx"
 import LastFiveIcon from "./LastFiveIcon.jsx"
+import AdministratorDashboard from "./AdministratorDashboard.jsx"
 
 export {
   Alert,
@@ -48,4 +49,5 @@ export {
   MatchList,
   Standings,
   LastFiveIcon,
+  AdministratorDashboard,
 }

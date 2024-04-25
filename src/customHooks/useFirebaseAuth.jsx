@@ -25,7 +25,6 @@ export function useFirebaseAuth() {
   const [loading, setLoading] = useState(true)
   const [userInfoLoading, setUserInfoLoading] = useState(true)
   const [scheduleLoading, setScheduleLoading] = useState(true)
-  const [globalTeamSchedule, setGlobalTeamSchedule] = useState()
 
   const signup = (email, password, firstName, lastName) =>
     createUserWithEmailAndPassword(auth, email, password).then(

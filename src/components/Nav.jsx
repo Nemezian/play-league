@@ -63,6 +63,18 @@ export default function Nav() {
         <NavLink to="/">Play league</NavLink>
       </h1>
       <div className="hidden lg:flex">
+      {(currentUser && userInfos) && (
+        <>
+        {userInfos.role === "administrator" && (
+        <NavLink
+          className="block p-3 whitespace-nowrap hover:text-gray-400"
+          to="/administrator-dashboard"
+        >
+          Admin
+        </NavLink>
+      )}
+      </>
+      )}
         <NavLink
           className="block p-3 whitespace-nowrap hover:text-gray-400"
           to="/"
@@ -70,6 +82,7 @@ export default function Nav() {
           Strona główna
         </NavLink>
 
+              
         {currentUser && (
           <NavLink
             className="block p-3 whitespace-nowrap hover:text-gray-400"
