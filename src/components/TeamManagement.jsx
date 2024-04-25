@@ -283,9 +283,7 @@ export default function TeamManagement() {
             className="block rounded py-2 px-2 hover:bg-gray-700 bg-gray-600 w-full mb-1"
             onClick={() => handleComponentChange("info")}
           >
-            <span className="text-xs sm:text-sm lg:text-base">
-              Edytuj
-            </span>
+            <span className="text-xs sm:text-sm lg:text-base">Edytuj</span>
           </button>
           <button
             className="block rounded py-2 px-2 hover:bg-gray-700 bg-gray-600 w-full mb-1"
@@ -311,9 +309,7 @@ export default function TeamManagement() {
             className="block rounded py-2 px-2 hover:bg-red-700 bg-red-500 w-full mb-1"
             onClick={openModal}
           >
-            <span className="text-xs sm:text-sm lg:text-base">
-              Usuń
-            </span>
+            <span className="text-xs sm:text-sm lg:text-base">Usuń</span>
           </button>
         </nav>
         {renderedComponent === "members" && (
@@ -372,7 +368,7 @@ export default function TeamManagement() {
                 handlePageChange={handlePageChangeMatches}
                 currentPage={currentPageMatches}
                 totalPages={totalPagesMatches}
-                className="flex justify-center mt-4"
+                className="w-11/12 flex justify-center mt-4"
               />
             )}
           </div>
@@ -384,16 +380,14 @@ export default function TeamManagement() {
           >
             {/* <AiOutlineEdit className="text-4xl text-fourth mb-4" /> */}
             {teamData && (
-                
-            <div>
-            
-              <label
-                htmlFor="team-name"
-                className="block mb-1 text-xs font-medium text-white "
-              >
-                Nazwa drużyny
-              </label>
-              
+              <div>
+                <label
+                  htmlFor="team-name"
+                  className="block mb-1 text-xs font-medium text-white "
+                >
+                  Nazwa drużyny
+                </label>
+
                 <input
                   type="text"
                   id="team-name"
@@ -402,12 +396,12 @@ export default function TeamManagement() {
                   ref={nameRef}
                   className={fixedInputClass}
                 />
-              <label
-                htmlFor="team-join-password"
-                className="block mb-1 text-xs font-medium text-white"
-              >
-                Kod dołączenia
-              </label>
+                <label
+                  htmlFor="team-join-password"
+                  className="block mb-1 text-xs font-medium text-white"
+                >
+                  Kod dołączenia
+                </label>
                 <input
                   type="text"
                   id="team-join-password"
@@ -416,12 +410,12 @@ export default function TeamManagement() {
                   ref={joinPasswordRef}
                   onChange={handleChange}
                 />
-              <label
-                htmlFor="team-description"
-                className="block mb-1 text-xs font-medium text-white"
-              >
-                Opis drużyny
-              </label>
+                <label
+                  htmlFor="team-description"
+                  className="block mb-1 text-xs font-medium text-white"
+                >
+                  Opis drużyny
+                </label>
                 <textarea
                   id="team-description"
                   name="team-description"
@@ -434,8 +428,8 @@ export default function TeamManagement() {
                   cols={30}
                   ref={descriptionRef}
                 ></textarea>
-            </div>
-          )}
+              </div>
+            )}
             <FormAction disabled={loading} text="Zapisz zmiany" />
           </form>
         )}

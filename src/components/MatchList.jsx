@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react"
 import { useAuth } from "../contexts/AuthContext"
 import Spinner from "./Spinner"
-import { AiFillEdit, AiOutlineClose, AiFillFlag  } from "react-icons/ai"
+import { AiFillEdit, AiOutlineClose, AiFillFlag } from "react-icons/ai"
 import ReactModal from "react-modal"
 import Alert from "./Alert"
 
@@ -26,7 +26,7 @@ export default function MatchList({
   const homeScoreRef = useRef()
   const awayScoreRef = useRef()
   const [message, setMessage] = useState("")
-  const [teamSchedule, setTeamSchedule] = useState(matches)
+  const [teamSchedule, setTeamSchedule] = useState([])
   const [paginatedData, setPaginatedData] = useState([])
   const [matchEdited, setMatchEdited] = useState(0)
 
@@ -57,8 +57,14 @@ export default function MatchList({
     setMessage("")
   }
 
-
-
+  useEffect(() => {
+    console.log("Matches TEST", matches)
+    setLoading(true)
+    if (matches) {
+      setTeamSchedule(matches)
+      setLoading(false)
+    }
+  }, [])
 
   useEffect(() => {
     setLoading(true)
@@ -80,7 +86,7 @@ export default function MatchList({
 
   useEffect(() => {
     console.log("TeamSchedule1", teamSchedule)
-    if (teamSchedule) {
+    if (teamSchedule && teamSchedule.length > 0) {
       console.log("warunek1: ", teamSchedule[0].hometeamName, currentTeamName)
       if (teamSchedule[0].hometeamName === currentTeamName) {
         const hometeamRef = teamSchedule[0].homeTeam
@@ -231,7 +237,6 @@ export default function MatchList({
           })
       }
     }
-  
   }
 
   if (loading) {
@@ -267,7 +272,7 @@ export default function MatchList({
                     htmlFor="homeScore"
                     className={
                       highlightTeam === editedMatch.homeTeamName
-                        ? "text-fourth text-xl md:text-base"
+                        ? "text-green-500 text-xl md:text-base"
                         : "text-white text-xl md:text-base"
                     }
                   >
@@ -295,7 +300,7 @@ export default function MatchList({
                     htmlFor="awayScore"
                     className={
                       highlightTeam === editedMatch.awayTeamName
-                        ? "text-fourth text-xl md:text-base"
+                        ? "text-green-500 text-xl md:text-base"
                         : "text-white text-xl md:text-base"
                     }
                   >
@@ -336,29 +341,29 @@ export default function MatchList({
             </div>
             <div>
               <div className="flex flex-col justify-center items-center">
-
                 {error && <Alert message={error} type="error" />}
                 {message && <Alert message={message} type="success" />}
-
               </div>
-              
+
               <div className="flex flex-row justify-center items-center">
-              <span className="text-white text-xl md:text-base text-center">Czy chcesz oddać mecz walkowerem?</span>
-                </div>
-                <div className="flex flex-row justify-center items-center">
-                  <button
-                    className="bg-fourth hover:bg-third text-white text-sm md:text-base mt-3 py-1 px-5 rounded"
-                    onClick={declareWalkover}
-                  >
-                    Tak
-                  </button>
-                  <button
-                    className="bg-red-500 hover:bg-red-700 text-white text-sm md:text-base ml-4 mt-3 py-1 px-5 rounded"
-                    onClick={closeWalkoverModal}
-                  >
-                    Nie
-                  </button>
-                </div>
+                <span className="text-white text-xl md:text-base text-center">
+                  Czy chcesz oddać mecz walkowerem?
+                </span>
+              </div>
+              <div className="flex flex-row justify-center items-center">
+                <button
+                  className="bg-fourth hover:bg-third text-white text-sm md:text-base mt-3 py-1 px-5 rounded"
+                  onClick={declareWalkover}
+                >
+                  Tak
+                </button>
+                <button
+                  className="bg-red-500 hover:bg-red-700 text-white text-sm md:text-base ml-4 mt-3 py-1 px-5 rounded"
+                  onClick={closeWalkoverModal}
+                >
+                  Nie
+                </button>
+              </div>
             </div>
           </ReactModal>
         </>
@@ -426,27 +431,27 @@ export default function MatchList({
                 </div>
               </div>
               <div className="w-1/12 flex flex-col items-center justify-between">
-              {actionButtons && match.status !== "finished" && match.status !== "walkover" ? (
-                <div className="flex flex-col md:flex-row justify-center items-center">
-                  <button
-                    className="bg-fourth hover:bg-third px-1 py-1 ml-1 rounded-md"
-                    onClick={(e) => openModal(match)}
-                  >
-                    <AiFillEdit />
-                  </button>
-                  <button
-                  className="bg-red-500 hover:bg-red-700 mt-1 md:mt-0 px-1 py-1 ml-1 rounded-md"
-                  onClick={(e) => openWalkoverModal(match)}
-                >
-                  <AiFillFlag />
-                </button>
-                </div>
-              ) : (
-                ""
-                
-              )}
-
-            </div>
+                {actionButtons &&
+                match.status !== "finished" &&
+                match.status !== "walkover" ? (
+                  <div className="flex flex-col md:flex-row justify-center items-center">
+                    <button
+                      className="bg-fourth hover:bg-third px-1 py-1 ml-1 rounded-md"
+                      onClick={(e) => openModal(match)}
+                    >
+                      <AiFillEdit />
+                    </button>
+                    <button
+                      className="bg-red-500 hover:bg-red-700 mt-1 md:mt-0 px-1 py-1 ml-1 rounded-md"
+                      onClick={(e) => openWalkoverModal(match)}
+                    >
+                      <AiFillFlag />
+                    </button>
+                  </div>
+                ) : (
+                  ""
+                )}
+              </div>
             </div>
           ))}
         </div>
