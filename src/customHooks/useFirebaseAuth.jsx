@@ -430,7 +430,7 @@ export function useFirebaseAuth() {
               timestampHour: docData.dateTime
                 .toDate()
                 .toLocaleTimeString("en-GB", { timeZone: "Europe/Warsaw" }),
-              timestampTest: docData.dateTime.toDate(),
+              timestampDate: docData.dateTime.toDate(),
             }
             fetchedMatches.push(matchData)
           })
@@ -593,6 +593,24 @@ export function useFirebaseAuth() {
 
     await updateTeamStandings(matchRef, homeScore, awayScore)
   }
+
+  const updateMatchDateAndTime = async (matchId, leagueId, date, time) => {
+
+    const matchRef = doc(firestore, "leagues", leagueId, "schedule", matchId)
+    const matchData = {
+      dateTime: new Date(date + "T" + time),
+      updatedAt: new Date(),
+    }
+    await setDoc(matchRef, matchData, { merge: true })
+      .then(() => {
+        console.log("Document successfully written!")
+      })
+      .catch((error) => {
+        console.error("Error adding document: ", error)
+      })
+  }
+
+
 
   const deleteTeamStandingsRecord = async (teamRef) => {
     const leagueId = teamRef.path.split("/")[1]
@@ -1001,5 +1019,6 @@ export function useFirebaseAuth() {
     generateMatchSchedule,
     deleteAllMatchesButFirst,
     updateMatchScore,
+    updateMatchDateAndTime,
   }
 }

@@ -4,6 +4,13 @@ import Spinner from "./Spinner"
 import { AiFillEdit, AiOutlineClose, AiFillFlag } from "react-icons/ai"
 import ReactModal from "react-modal"
 import Alert from "./Alert"
+import
+{ Space, TimePicker }
+from
+"antd"
+;
+import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat'
 
 export default function MatchList({
   matches,
@@ -19,38 +26,49 @@ export default function MatchList({
   const { updateMatchScore, getTeamSchedule } = useAuth()
   const [loading, setLoading] = useState(true)
   const [highlightTeam, setHighlightTeam] = useState(null)
-  const [modalIsOpen, setIsOpen] = useState(false)
+  const [scoreModalIsOpen, setScoreModaIsOpen] = useState(false)
   const [walkoverModalIsOpen, setWalkoverModalIsOpen] = useState(false)
+  const [dateChangeModalIsOpen, setDateChangeModalIsOpen] = useState(false)
   const [error, setError] = useState("")
   const [editedMatch, setEditedMatch] = useState("")
   const homeScoreRef = useRef()
   const awayScoreRef = useRef()
+  const dateRef = useRef()
+  const timeRef = useRef()
   const [message, setMessage] = useState("")
   const [teamSchedule, setTeamSchedule] = useState([])
   const [paginatedData, setPaginatedData] = useState([])
   const [matchEdited, setMatchEdited] = useState(0)
+  const [changeState, setChangeState] = useState({})
 
   const startIndex = (page - 1) * pageSize
   const endIndex = startIndex + pageSize
 
-  const openModal = (e) => {
-    setIsOpen(true)
+
+  dayjs.extend(customParseFormat)
+
+  const openModal = (e, modalType) => {
     setEditedMatch(e)
+
+    switch(modalType) {
+      case "dateChange":
+        setDateChangeModalIsOpen(true)
+        break
+      case "walkover":
+        setWalkoverModalIsOpen(true)
+        break
+      case "score":
+        setScoreModaIsOpen(true)
+        break
+      default:
+        setScoreModaIsOpen(true)
+        break
+    }
   }
 
   const closeModal = () => {
-    setIsOpen(false)
-    setEditedMatch("")
-    setError("")
-    setMessage("")
-  }
-
-  const openWalkoverModal = (e) => {
-    setWalkoverModalIsOpen(true)
-    setEditedMatch(e)
-  }
-
-  const closeWalkoverModal = () => {
+    setScoreModaIsOpen(false)
+    setDateChangeModalIsOpen(false)
     setWalkoverModalIsOpen(false)
     setEditedMatch("")
     setError("")
@@ -58,7 +76,6 @@ export default function MatchList({
   }
 
   useEffect(() => {
-    console.log("Matches TEST", matches)
     setLoading(true)
     if (matches) {
       setTeamSchedule(matches)
@@ -173,7 +190,6 @@ export default function MatchList({
     }
   }
 
-  //TODO: Declare walkover
   const declareWalkover = (e) => {
     e.preventDefault()
     setEditedMatch(e)
@@ -239,15 +255,27 @@ export default function MatchList({
     }
   }
 
+  const handleChangeState = (e) => {  
+    setChangeState({
+      ...changeState,
+      [e.target.name]: e.target.value
+    })
+  }
+
   if (loading) {
     return <Spinner positioning=" flex justify-center" />
+  }  
+
+  if(editedMatch) {  
+  console.log("Formatted splitted date", editedMatch.timestampDate.toISOString().split("T")[1])
+  console.log("Dayjs date", dayjs(editedMatch.timestampDate.toISOString().split("T")[1], "HH:mm:ss.SSS"))
   }
   return (
     <div className={divClassName}>
       {editedMatch !== "" && (
         <>
           <ReactModal
-            isOpen={modalIsOpen}
+            isOpen={scoreModalIsOpen}
             shouldCloseOnOverlayClick={true}
             onRequestClose={closeModal}
             className=" bg-secondary rounded-lg p-4 top-1/2 left-1/2 absolute transform -translate-x-1/2 -translate-y-1/2 w-3/5 md:w-[400px]  h-auto z-50"
@@ -272,8 +300,8 @@ export default function MatchList({
                     htmlFor="homeScore"
                     className={
                       highlightTeam === editedMatch.homeTeamName
-                        ? "text-green-500 text-xl md:text-base"
-                        : "text-white text-xl md:text-base"
+                        ? "text-yellow-300 text-base font-bold md:text-2xl"
+                        : "text-white text-base font-bold md:text-2xl"
                     }
                   >
                     {editedMatch.homeTeamName}
@@ -300,8 +328,8 @@ export default function MatchList({
                     htmlFor="awayScore"
                     className={
                       highlightTeam === editedMatch.awayTeamName
-                        ? "text-green-500 text-xl md:text-base"
-                        : "text-white text-xl md:text-base"
+                        ? "text-yellow-300 text-base font-bold md:text-2xl"
+                        : "text-white text-base font-bold md:text-2xl"
                     }
                   >
                     {editedMatch.awayTeamName}
@@ -331,7 +359,7 @@ export default function MatchList({
           <ReactModal
             isOpen={walkoverModalIsOpen}
             shouldCloseOnOverlayClick={true}
-            onRequestClose={closeWalkoverModal}
+            onRequestClose={closeModal}
             className=" bg-secondary rounded-lg p-4 top-1/2 left-1/2 absolute transform -translate-x-1/2 -translate-y-1/2 w-3/5 md:w-[400px]  h-auto z-50"
           >
             <div className="flex justify-end">
@@ -359,9 +387,106 @@ export default function MatchList({
                 </button>
                 <button
                   className="bg-red-500 hover:bg-red-700 text-white text-sm md:text-base ml-4 mt-3 py-1 px-5 rounded"
-                  onClick={closeWalkoverModal}
+                  onClick={closeModal}
                 >
                   Nie
+                </button>
+              </div>
+            </div>
+          </ReactModal>
+        </>
+      )}
+      {editedMatch !== "" && (
+        <>
+          <ReactModal
+            isOpen={dateChangeModalIsOpen}
+            shouldCloseOnOverlayClick={true}
+            onRequestClose={closeModal}
+            className=" bg-secondary rounded-lg p-4 top-1/2 left-1/2 absolute transform -translate-x-1/2 -translate-y-1/2 w-3/5 md:w-[400px]  h-auto z-50"
+          >
+            <div className="flex justify-end">
+              <button className="block" onClick={closeModal}>
+                <AiOutlineClose size={20} />
+              </button>
+            </div>
+            <div>
+              <div className="flex flex-col justify-center items-center">
+                {error && <Alert message={error} type="error" />}
+                {message && <Alert message={message} type="success" />}
+              </div>
+
+              <div className="flex flex-row justify-center items-center">
+                <span className="text-white text-xl md:text-2xl text-center font-bold mb-4">
+                  Zmień datę meczu
+                </span>
+              </div>
+              <div>
+                <form>
+                  <div className="flex flex-col md:flex-row justify-center items-center">
+                    <div className="flex flex-col justify-center items-center">
+                    <label
+                      htmlFor="matchDate"
+                      className="text-white text-base"
+                    >
+                      Data:
+                    </label>
+                    <input
+                      type="date"
+                      name="matchDate"
+                      id="matchDate"
+                      ref={dateRef}
+                      min={new Date().toISOString().split("T")[0]}
+                      defaultValue={dayjs(editedMatch.timestampDate.toISOString().split("T")[1], "HH:mm:ss.SSS")}
+                      onChange={handleChangeState}
+                      className="bg-secondary text-white text-base text-center  w-[130px] px-1 rounded ml-2 focus:border-fourth"
+                    />
+                    </div>
+                    <div className="flex flex-col justify-center ml-2 mt-2 md:mt-0 items-center">
+                     <label
+                      htmlFor="matchTime"
+                      className="text-white text-base"
+                    >
+                      Godzina:
+                    </label>
+                    {/*
+                    <input
+                      type="time"
+                      name="matchTime"
+                      id="matchTime"
+                      ref={timeRef}
+                      defaultValue={editedMatch.timestampHour}
+                      onChange={handleChangeState}
+                      step={900}
+                      className="bg-secondary text-white text-base  text-center w-[100px] px-1 rounded ml-2"
+                    /> */}
+                      <Space wrap>
+
+    <TimePicker id="matchTime" defaultValue={dayjs(editedMatch.timestampHour)}
+     size="large"  
+     minuteStep={15} 
+     className="bg-secondary focus:bg-secondary text-white focus:text-white" 
+     format="HH:mm"
+     needConfirm={false}
+  
+     />
+
+      </Space>
+              </div>  
+                    </div>
+                    </form>
+              </div>
+              <div className="flex flex-row justify-center items-center">
+                <button
+                  className="bg-fourth hover:bg-third text-white text-sm md:text-base mt-3 py-1 px-4 rounded"
+                  onClick={declareWalkover}
+                >
+                  Ustaw
+                </button>
+                <button
+                  className="bg-red-500 hover:bg-red-700 text-white text-sm md:text-base ml-4 mt-3 py-1 px-4 rounded"
+                  onClick={closeModal}
+                >
+                  Anuluj
                 </button>
               </div>
             </div>
@@ -378,8 +503,14 @@ export default function MatchList({
                     <span>{match.roundNo}</span>
                     <span>. kolejka</span>
                   </div>
-                  <div className="text-center w-1/3 text-sm">
-                    {match.timestampDay} {match.timestampHour}
+                  <div className="flex justify-center items-center text-center w-1/3 text-sm pl-2">
+                    <span>{match.timestampDay} {match.timestampHour}</span>
+                    <button
+                    className="ml-1 mb-[0.15rem]"
+                      onClick={(e) => openModal(match, "dateChange")}
+                    >
+                      <AiFillEdit />
+                    </button>
                   </div>
                   <div className="text-end w-1/3 text-sm">
                     <span>
@@ -388,10 +519,8 @@ export default function MatchList({
                         ? "Mecz nadchodzący"
                         : match.status === "finished"
                           ? "Mecz zakończony"
-                          : match.status === "notPlayed"
-                            ? "Mecz nierozegrany"
-                            : match.status === "walkover"
-                              ? "Mecz poddany"
+                          : match.status === "walkover"
+                            ? "Mecz poddany"
                               : ""}
                     </span>
                   </div>
@@ -400,20 +529,20 @@ export default function MatchList({
                   <span
                     className={
                       highlightTeam === match.homeTeamName
-                        ? "text-fourth w-1/3"
-                        : "w-1/3"
+                        ? "text-yellow-300 font-bold text-start w-1/3"
+                        : "font-bold w-1/3"
                     }
                   >
                     {match.homeTeamName}
                   </span>
                   <div className="w-1/3 text-center">
-                    <span className="text-ultrabold text-2xl">
+                    <span className="font-bold text-2xl">
                       {match.result.homeScore !== null
                         ? match.result.homeScore
                         : "-"}
                     </span>
                     <span> : </span>
-                    <span className="text-ultrabold text-2xl">
+                    <span className="font-bold text-2xl">
                       {match.result.awayScore !== null
                         ? match.result.awayScore
                         : "-"}
@@ -422,8 +551,8 @@ export default function MatchList({
                   <span
                     className={
                       highlightTeam === match.awayTeamName
-                        ? "text-fourth text-end w-1/3"
-                        : " text-end w-1/3"
+                        ? "text-yellow-300 font-bold text-end w-1/3"
+                        : " font-bold text-end w-1/3"
                     }
                   >
                     {match.awayTeamName}
@@ -437,13 +566,13 @@ export default function MatchList({
                   <div className="flex flex-col md:flex-row justify-center items-center">
                     <button
                       className="bg-fourth hover:bg-third px-1 py-1 ml-1 rounded-md"
-                      onClick={(e) => openModal(match)}
+                      onClick={(e) => openModal(match, "score")}
                     >
                       <AiFillEdit />
                     </button>
                     <button
                       className="bg-red-500 hover:bg-red-700 mt-1 md:mt-0 px-1 py-1 ml-1 rounded-md"
-                      onClick={(e) => openWalkoverModal(match)}
+                      onClick={(e) => openModal(match, "walkover")}
                     >
                       <AiFillFlag />
                     </button>
