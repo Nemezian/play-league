@@ -10,6 +10,7 @@ import ReactModal from "react-modal"
 import PaginationButtons from "./PaginationButtons"
 import MatchList from "./MatchList"
 import { AiOutlineClose } from "react-icons/ai"
+import { set } from "firebase/database"
 
 export default function TeamManagement() {
   const [teamData, setTeamData] = useState(null)
@@ -50,6 +51,7 @@ export default function TeamManagement() {
   const [totalPagesMatches, setTotalPagesMatches] = useState(0)
   const [modalIsOpen, setIsOpen] = useState(false)
   const [leagueId, setLeagueId] = useState("")
+  const [scheduleIsPresent, setScheduleIsPresent] = useState(false)
 
   const fixedInputClass =
     "rounded-lg appearance-none bg-secondary  mb-2 block w-full p-1.5 md:p-2.5 px-3 py-2 border border-gray-500 placeholder-gray-500 text-white focus:outline-none focus:ring-fourth focus:border-fourth focus:z-10 sm:text-sm"
@@ -112,6 +114,7 @@ export default function TeamManagement() {
       getTeamSchedule(userInfos.teamId, true)
         .then((data) => {
           setTeamMatches(data)
+          setScheduleIsPresent(true)
           console.log("Team matches fetched", data)
         })
         .catch((error) => {
@@ -306,8 +309,9 @@ export default function TeamManagement() {
             <span className="text-xs sm:text-sm lg:text-base">Mecze</span>
           </button>
           <button
-            className="block rounded py-2 px-2 hover:bg-red-700 bg-red-500 w-full mb-1"
+            className="block rounded py-2 px-2 disabled:bg-red-800 hover:bg-red-700 bg-red-500 w-full mb-1"
             onClick={openModal}
+            disabled={scheduleIsPresent}
           >
             <span className="text-xs sm:text-sm lg:text-base">Usuń</span>
           </button>

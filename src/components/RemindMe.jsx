@@ -42,7 +42,7 @@ export default function RemindMe() {
   }
 
   return (
-    <>
+    <div className="flex flex-col justify-center items-center">
       {error && (
         <Alert message={error} type="error">
           {error}
@@ -53,8 +53,8 @@ export default function RemindMe() {
           {message}
         </Alert>
       )}
-      <form className="mt-8 space-y-6 " onSubmit={handleSubmit}>
-        <div className="-space-y-13">
+      <form className="mt-3 w-full space-y-6 " onSubmit={handleSubmit}>
+        <div>
           {fields.map((field) => (
             <Input
               key={field.id}
@@ -75,6 +75,6 @@ export default function RemindMe() {
         </div>
         <FormAction disabled={loading} text="Wyślij e-mail" />
       </form>
-    </>
+    </div>
   )
 }

@@ -10,8 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "antd": "^5.16.4",
-    "dayjs": "^1.11.10",
+    "antd": "^5.16.5",
+    "dayjs": "^1.11.11",
     "firebase": "^10.8.0",
     "flowbite": "^2.2.1",
     "flowbite-react": "^0.7.2",
