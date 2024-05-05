@@ -595,7 +595,6 @@ export function useFirebaseAuth() {
   }
 
   const updateMatchDateAndTime = async (matchId, leagueId, date, time) => {
-
     const matchRef = doc(firestore, "leagues", leagueId, "schedule", matchId)
     const matchData = {
       dateTime: new Date(date + "T" + time),
@@ -609,8 +608,6 @@ export function useFirebaseAuth() {
         console.error("Error adding document: ", error)
       })
   }
-
-
 
   const deleteTeamStandingsRecord = async (teamRef) => {
     const leagueId = teamRef.path.split("/")[1]
@@ -914,7 +911,6 @@ export function useFirebaseAuth() {
       preferredMatchDays = weekdays
     }
 
-    // Count the number of weekdays in the preferred match days and sort them by index
     const weekdayCounts = {}
     for (const weekday of preferredMatchDays) {
       const weekdayIndex = weekdays.indexOf(weekday)
@@ -925,46 +921,34 @@ export function useFirebaseAuth() {
       }
     }
 
-    // Sort the weekdays by count in descending order
     preferredMatchDays.sort((a, b) => {
       const countA = weekdayCounts[weekdays.indexOf(a)]
       const countB = weekdayCounts[weekdays.indexOf(b)]
       return countB - countA
     })
 
-    // Calculate the number of weeks to add based on the current round number
     const weeksToAdd = currentRound
 
-    // Find the first available weekday for the match  in the next week
     let nextMatchDate
     for (const weekday of preferredMatchDays) {
       const weekdayIndex = weekdays.indexOf(weekday)
       nextMatchDate = await getNextWeekday(weekdayIndex, weeksToAdd)
       break
     }
-
-    console.log("Next match date: ", nextMatchDate)
     return nextMatchDate
   }
 
   const getNextWeekday = async (weekdayIndex, weeksToAdd) => {
-    console.log("Weekday index: ", weekdayIndex)
-    console.log("Weeks to add: ", weeksToAdd)
     const today = new Date()
-    const currentDay = (today.getDay() + 6) % 7 // Adjust current day index to start from Monday (0 for Monday, 1 for Tuesday, ..., 6 for Sunday)
-    console.log("Current day: ", currentDay)
+    const currentDay = (today.getDay() + 6) % 7
 
-    let daysToAdd = weekdayIndex + 7 - currentDay // Calculate the number of days to add to reach the desired weekday
-    console.log("Days to add: ", daysToAdd)
-
-    // Adjust days to add based on the number of weeks to add
+    let daysToAdd = weekdayIndex + 7 - currentDay
     daysToAdd += weeksToAdd * 7
 
     const nextWeekday = new Date(today)
-    nextWeekday.setDate(today.getDate() + daysToAdd) // Set the date to the next weekday
+    nextWeekday.setDate(today.getDate() + daysToAdd)
     nextWeekday.setHours(18, 0, 0, 0)
 
-    console.log("Next weekday: ", nextWeekday)
     return nextWeekday
   }
 

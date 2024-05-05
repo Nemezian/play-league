@@ -9,9 +9,6 @@ export default function PrivateRoute({ children, allowedRoles, navigateTo }) {
     return <Navigate to={"/login"} />
   }
 
-  // if (!userInfos) {
-  //   return <Spinner />
-  // }
   if (userInfoLoading || !userInfos) {
     return <Spinner />
   }

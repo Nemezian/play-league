@@ -114,7 +114,9 @@ export default function TeamManagement() {
       getTeamSchedule(userInfos.teamId, true)
         .then((data) => {
           setTeamMatches(data)
-          setScheduleIsPresent(true)
+
+          if (data && data.length > 0) setScheduleIsPresent(true)
+
           console.log("Team matches fetched", data)
         })
         .catch((error) => {
